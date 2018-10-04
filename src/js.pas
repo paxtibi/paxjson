@@ -471,7 +471,6 @@ end;
 function TJSONDoubleTypeHandler.stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean;
 begin
   result := False;
-
   if (info^.PropType^.Kind = tkFloat) and (info^.PropType^.Name = 'Double') then
   begin
     res := TJSONFloatNumber.Create(GetFloatProp(AObject, Info));
@@ -570,14 +569,14 @@ begin
     for idx := 0 to Count - 1 do
     begin
       try
+        Writeln(PList^[idx]^.Name, ':', PList^[idx]^.PropType^.Name);
         getHandlers(PList^[idx]^.PropType^.Kind, handlers);
-        Writeln('Start ', PList^[idx]^.Name);
         for h in handlers do
         begin
+          writeln('  ', h.ClassName);
           if h.stringify(AObject, PList^[idx], childNode) then
           begin
             TJSONObject(Res).Add(PList^[idx]^.Name, childNode);
-            Writeln('Done ', PList^[idx]^.Name);
             break;
           end;
         end;
@@ -635,8 +634,10 @@ begin
             childNode := TJSONObject(node).Find(pname);
           end;
           getHandlers(PList^[idx]^.PropType^.Kind, handlers);
+          {
           if handlers.Count = 0 then
             Writeln(PList^[idx]^.Name, ' ', PList^[idx]^.PropType^.Name, ' ', PList^[idx]^.PropType^.Kind);
+          }
           for h in handlers do
           begin
             if h.parse(AObject, PList^[idx], childNode) then
@@ -745,18 +746,22 @@ var
   handlers: THandlerList;
   h: TJsonTypeHandler;
 begin
-  getHandlers(tkObject, handlers);
-  for h in handlers do
-  begin
-    if h.stringify(obj, nil, jsonData) then
-      break;
+  try
+    getHandlers(tkObject, handlers);
+    for h in handlers do
+    begin
+      if h.stringify(obj, nil, jsonData) then
+        break;
+    end;
+    handlers.Free;
+    if jsonData <> nil then
+      result := jsonData.FormatJSON()
+    else
+      result := 'null';
+  finally
+    if jsonData <> nil then
+      jsonData.Free;
   end;
-  handlers.Free;
-  if jsonData <> nil then
-    result := jsonData.FormatJSON()
-  else
-    result := 'null';
-  FreeAndNil(jsonData);
 end;
 
 initialization
@@ -768,9 +773,9 @@ initialization
   RegisterJsonTypeHandler(tkClass, TJSONObjectTypeHandler.Create);
   RegisterJsonTypeHandler(tkInt64, TJSONIntegerTypeHandle.Create);
   RegisterJsonTypeHandler(tkInteger, TJSONIntegerTypeHandle.Create);
-  RegisterJsonTypeHandler(tkFloat, TJSONSingleTypeHandler.Create);
-  RegisterJsonTypeHandler(tkFloat, TJSONDoubleTypeHandler.Create);
   RegisterJsonTypeHandler(tkFloat, TJSONExtendedTypeHandler.Create);
+  RegisterJsonTypeHandler(tkFloat, TJSONDoubleTypeHandler.Create);
+  RegisterJsonTypeHandler(tkFloat, TJSONSingleTypeHandler.Create);
   RegisterJsonTypeHandler(tkString, TJSONStringTypeHandle.Create);
   RegisterJsonTypeHandler(tkAString, TJSONStringTypeHandle.Create);
   RegisterJsonTypeHandler(tkWString, TJSONWideStringTypeHandle.Create);
