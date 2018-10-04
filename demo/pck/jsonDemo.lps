@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <ProjectSession>
+    <PathDelim Value="\"/>
+    <Version Value="10"/>
+    <BuildModes Active="Default"/>
+    <Units Count="4">
+      <Unit0>
+        <Filename Value="jsonDemo.lpr"/>
+        <IsPartOfProject Value="True"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="13"/>
+        <CursorPos X="16" Y="24"/>
+        <UsageCount Value="20"/>
+        <Loaded Value="True"/>
+      </Unit0>
+      <Unit1>
+        <Filename Value="..\src\omtest.pas"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="1"/>
+        <TopLine Value="30"/>
+        <CursorPos X="3" Y="45"/>
+        <UsageCount Value="20"/>
+        <Loaded Value="True"/>
+      </Unit1>
+      <Unit2>
+        <Filename Value="..\..\json\src\js.pas"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="767"/>
+        <CursorPos Y="777"/>
+        <UsageCount Value="10"/>
+      </Unit2>
+      <Unit3>
+        <Filename Value="C:\programmi\lazarus-1.8-32\fpc\3.0.4\source\rtl\inc\systemh.inc"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="434"/>
+        <CursorPos X="36" Y="443"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit3>
+    </Units>
+    <JumpHistory Count="7" HistoryIndex="6">
+      <Position1>
+        <Filename Value="jsonDemo.lpr"/>
+        <Caret Line="35" TopLine="22"/>
+      </Position1>
+      <Position2>
+        <Filename Value="jsonDemo.lpr"/>
+        <Caret Line="35" Column="7" TopLine="22"/>
+      </Position2>
+      <Position3>
+        <Filename Value="jsonDemo.lpr"/>
+        <Caret Line="36" TopLine="22"/>
+      </Position3>
+      <Position4>
+        <Filename Value="..\src\omtest.pas"/>
+        <Caret Line="83" TopLine="74"/>
+      </Position4>
+      <Position5>
+        <Filename Value="..\src\omtest.pas"/>
+        <Caret Line="84" TopLine="74"/>
+      </Position5>
+      <Position6>
+        <Filename Value="..\src\omtest.pas"/>
+        <Caret Line="85" Column="39" TopLine="74"/>
+      </Position6>
+      <Position7>
+        <Filename Value="..\src\omtest.pas"/>
+        <Caret Line="45" Column="3" TopLine="30"/>
+      </Position7>
+    </JumpHistory>
+  </ProjectSession>
+</CONFIG>
