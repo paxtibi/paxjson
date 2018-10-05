@@ -4,22 +4,21 @@
     <PathDelim Value="\"/>
     <Version Value="10"/>
     <BuildModes Active="Default"/>
-    <Units Count="4">
+    <Units Count="5">
       <Unit0>
         <Filename Value="jsonDemo.lpr"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
-        <TopLine Value="13"/>
-        <CursorPos X="16" Y="24"/>
+        <TopLine Value="30"/>
+        <CursorPos X="30" Y="39"/>
         <UsageCount Value="20"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
         <Filename Value="..\src\omtest.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="1"/>
-        <TopLine Value="30"/>
-        <CursorPos X="3" Y="45"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="134"/>
+        <CursorPos X="35" Y="149"/>
         <UsageCount Value="20"/>
         <Loaded Value="True"/>
       </Unit1>
@@ -32,14 +31,21 @@
       </Unit2>
       <Unit3>
         <Filename Value="C:\programmi\lazarus-1.8-32\fpc\3.0.4\source\rtl\inc\systemh.inc"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="434"/>
         <CursorPos X="36" Y="443"/>
         <UsageCount Value="10"/>
-        <Loaded Value="True"/>
       </Unit3>
+      <Unit4>
+        <Filename Value="..\..\src\paxjs.pas"/>
+        <IsVisibleTab Value="True"/>
+        <EditorIndex Value="1"/>
+        <CursorPos X="16" Y="13"/>
+        <UsageCount Value="10"/>
+        <Loaded Value="True"/>
+      </Unit4>
     </Units>
-    <JumpHistory Count="7" HistoryIndex="6">
+    <JumpHistory Count="12" HistoryIndex="11">
       <Position1>
         <Filename Value="jsonDemo.lpr"/>
         <Caret Line="35" TopLine="22"/>
@@ -68,6 +74,26 @@
         <Filename Value="..\src\omtest.pas"/>
         <Caret Line="45" Column="3" TopLine="30"/>
       </Position7>
+      <Position8>
+        <Filename Value="jsonDemo.lpr"/>
+        <Caret Line="10" Column="20" TopLine="4"/>
+      </Position8>
+      <Position9>
+        <Filename Value="..\..\src\paxjs.pas"/>
+        <Caret Line="14" Column="8" TopLine="10"/>
+      </Position9>
+      <Position10>
+        <Filename Value="..\..\src\paxjs.pas"/>
+        <Caret Line="769" Column="17" TopLine="759"/>
+      </Position10>
+      <Position11>
+        <Filename Value="..\..\src\paxjs.pas"/>
+        <Caret Line="743" Column="16" TopLine="736"/>
+      </Position11>
+      <Position12>
+        <Filename Value="jsonDemo.lpr"/>
+        <Caret Line="38" Column="68" TopLine="28"/>
+      </Position12>
     </JumpHistory>
   </ProjectSession>
 </CONFIG>

@@ -16,8 +16,8 @@
     <Version Release="1"/>
     <Files Count="1">
       <Item1>
-        <Filename Value="..\src\js.pas"/>
-        <UnitName Value="js"/>
+        <Filename Value="..\src\paxjs.pas"/>
+        <UnitName Value="paxjs"/>
       </Item1>
     </Files>
     <RequiredPkgs Count="1">

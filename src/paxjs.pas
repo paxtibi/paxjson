@@ -1,4 +1,4 @@
-unit js;
+unit paxjs;
 
 {$mode objfpc}{$H+}
 
@@ -7,11 +7,13 @@ interface
 uses
   Classes, SysUtils, typinfo, fpjson;
 
+//
+//Date Format: http://es5.github.io/#x15.9.1.15
+//
 type
   TDynIntegerArray = array of integer;
   { TJSON }
-
-  TJSON = class
+  TJSON3 = class
     function parse(source: TJSONStringType; const clz: TClass): TObject; overload;
     function stringify(const obj: TObject): TJSONStringType;
   end;
@@ -97,7 +99,7 @@ type
 
 
 var
-  JSON: TJSON;
+  JSON: TJSON3;
 
 
 procedure RegisterJsonTypeHandler(typeKind: TTypeKind; anHandler: TJsonTypeHandler);
@@ -217,7 +219,7 @@ end;
 
 function selectorCase(aString: string): string;
 begin
-  result[1] := lowerCase(Result[1]);
+  result[1] := lowerCase(aString[1]);
   result := ReplaceRegExpr('([A-Z])', result, '-\L$1', True);
 end;
 
@@ -561,6 +563,7 @@ var
   Size: integer;
   childNode: TJSONData;
 begin
+  result := True;
   Count := GetPropList(AObject.ClassInfo, tkAny, nil);
   Size := Count * SizeOf(Pointer);
   GetMem(PList, Size);
@@ -722,7 +725,7 @@ end;
 
 { TJSON }
 
-function TJSON.parse(source: TJSONStringType; const clz: TClass): TObject;
+function TJSON3.parse(source: TJSONStringType; const clz: TClass): TObject;
 var
   jsonData: TJSONData;
   handlers: THandlerList;
@@ -740,7 +743,7 @@ begin
   jsonData.Free;
 end;
 
-function TJSON.stringify(const obj: TObject): TJSONStringType;
+function TJSON3.stringify(const obj: TObject): TJSONStringType;
 var
   jsonData: TJSONData = nil;
   handlers: THandlerList;
@@ -766,7 +769,7 @@ end;
 
 initialization
   InitCriticalSection(ClassCS);
-  JSON := TJSON.Create;
+  JSON := TJSON3.Create;
   Registry := TJSONTypeRegistry.Create();
   ClassList := TClassList.Create;
   RegisterJsonTypeHandler(tkObject, TJSONObjectTypeHandler.Create);

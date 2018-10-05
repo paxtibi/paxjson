@@ -7,7 +7,7 @@ uses {$IFDEF UNIX} {$IFDEF UseCThreads}
   Classes,
   SysUtils,
   omtest,
-  js,
+  paxjs,
   CustApp { you can add units after this };
 
 type
@@ -34,6 +34,9 @@ type
     co := JSON.parse('{ EnumProperty : "enum2", SimpleObject : {"property-integer":10, "property-string":"Ciao", PropertyFloat:10.6}}', TComplexObject) as TComplexObject;
     //writeln(so.ToString);
     writeln(co.ToString);
+    co.SimpleObject.Free;
+    co.SimpleObject := JSON.parse(JSON.stringify(so), TSimpleObject) as TSimpleObject;
+    Writeln(JSON.stringify(co.SimpleObject));
     FreeAndNil(co);
     FreeAndNil(so);
     Terminate(0);

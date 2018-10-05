@@ -59,7 +59,7 @@ type
 implementation
 
 uses
-  js, typinfo;
+  paxjs, typinfo;
 
 
 { TComplexObject }
