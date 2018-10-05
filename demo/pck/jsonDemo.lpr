@@ -27,17 +27,23 @@ type
 
   procedure TJSONDemo.DoRun;
   var
-    so: TSimpleObject;
-    co: TComplexObject;
+    so: TSimpleObject = nil;
+    co: TComplexObject = nil;
+    coll: TACollection = nil;
   begin
     Writeln(selectorCase('thisIsATry'));
     Writeln(pascalCase('thisIsATry'));
     Writeln(camelCase('ThisIsATry'));
-    so := JSON.parse('{propertyInteger:10, propertyString:"Ciao", propertyFloat:10.6, returnCodes:["10","20"]}', TSimpleObject) as TSimpleObject;
+    coll := TACollection.Create;
+    coll.Add;
+    coll.Add;
+    Writeln(JSON.stringify(coll));
+
+    //so := JSON.parse('{propertyInteger:10, propertyString:"Ciao", propertyFloat:10.6, returnCodes:["10","20"]}', TSimpleObject) as TSimpleObject;
     co := JSON.parse('{ EnumProperty : "enum2", SimpleObject : {"property-integer":10, "property-string":"Ciao", PropertyFloat:10.6}}', TComplexObject) as TComplexObject;
-    writeln(co.ToString);
+    //writeln(co.ToString);
     co.SimpleObject.Free;
-    co.SimpleObject := JSON.parse(JSON.stringify(so), TSimpleObject) as TSimpleObject;
+    //co.SimpleObject := JSON.parse(JSON.stringify(so), TSimpleObject) as TSimpleObject;
     Writeln(JSON.stringify(co.SimpleObject));
     FreeAndNil(co);
     FreeAndNil(so);
