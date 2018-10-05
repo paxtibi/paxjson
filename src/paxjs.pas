@@ -102,7 +102,7 @@ var
   JSON: TJSON3;
 
 
-procedure RegisterJsonTypeHandler(typeKind: TTypeKind; anHandler: TJsonTypeHandler);
+procedure RegisterJsonTypeHandler(aTypeKind: TTypeKind; aHandler: TJsonTypeHandler);
 procedure RegisterJSONClass(aClass: TClass);
 function GetJSONClass(const AClassName: string): TClass;
 function camelCase(const aString: string): string;
@@ -151,13 +151,14 @@ var
   ClassList: TClassList;
   ClassCS: TRTLCriticalSection;
 
-procedure RegisterJsonTypeHandler(typeKind: TTypeKind; anHandler: TJsonTypeHandler);
+procedure RegisterJsonTypeHandler(aTypeKind: TTypeKind; aHandler: TJsonTypeHandler);
+
 var
   holder: TJSONTypeHandlerHolder;
 begin
   holder := TJSONTypeHandlerHolder.Create;
-  holder.Kind := typeKind;
-  holder.Handler := anHandler;
+  holder.Kind := aTypeKind;
+  holder.Handler := aHandler;
   Registry.Insert(0, holder);
 end;
 
