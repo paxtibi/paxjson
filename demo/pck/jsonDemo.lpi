@@ -30,7 +30,7 @@
         <PackageName Value="paxjson_package"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="2">
+    <Units Count="3">
       <Unit0>
         <Filename Value="jsonDemo.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -39,6 +39,10 @@
         <Filename Value="..\src\omtest.pas"/>
         <IsPartOfProject Value="True"/>
       </Unit1>
+      <Unit2>
+        <Filename Value="C:\programmi\lazarus-1.8-32\fpc\3.0.4\source\rtl\objpas\classes\classesh.inc"/>
+        <IsPartOfProject Value="True"/>
+      </Unit2>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -48,7 +52,7 @@
       <Filename Value="..\bin\$(TargetCPU)-$(TargetOS)\jsonDemo"/>
     </Target>
     <SearchPaths>
-      <IncludeFiles Value="$(ProjOutDir)"/>
+      <IncludeFiles Value="$(ProjOutDir);C:\programmi\lazarus-1.8-32\fpc\3.0.4\source\rtl\objpas\classes\"/>
       <OtherUnitFiles Value="..\src;..\src\server;..\src\lib"/>
       <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>

@@ -71,7 +71,8 @@ type
 
   TACollection = class(TCollection)
   public
-    constructor Create;
+    constructor Create; reintroduce;
+    function Add: TCollectionItem;
   end;
 
 implementation
@@ -98,8 +99,16 @@ end;
 
 constructor TACollection.Create;
 begin
+  Writeln('--> TACollection.Create');
   inherited Create(TACollectionItem);
+  Writeln('<-- TACollection.Create');
 end;
+
+function TACollection.Add: TCollectionItem;
+begin
+  Result := inherited Add;
+end;
+
 
 
 { TComplexObject }
@@ -186,8 +195,6 @@ begin
 end;
 
 initialization
-  RegisterJSONClass(TSimpleObject);
-  RegisterJSONClass(TComplexObject);
-  RegisterJSONClass(TACollection);
+
 
 end.

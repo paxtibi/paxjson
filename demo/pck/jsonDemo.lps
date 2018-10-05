@@ -4,23 +4,22 @@
     <PathDelim Value="\"/>
     <Version Value="10"/>
     <BuildModes Active="Default"/>
-    <Units Count="6">
+    <Units Count="11">
       <Unit0>
         <Filename Value="jsonDemo.lpr"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
-        <TopLine Value="28"/>
-        <CursorPos X="111" Y="37"/>
-        <UsageCount Value="28"/>
+        <TopLine Value="48"/>
+        <CursorPos Y="57"/>
+        <UsageCount Value="32"/>
         <Loaded Value="True"/>
       </Unit0>
       <Unit1>
         <Filename Value="..\src\omtest.pas"/>
         <IsPartOfProject Value="True"/>
-        <EditorIndex Value="3"/>
-        <TopLine Value="142"/>
-        <CursorPos X="28" Y="185"/>
-        <UsageCount Value="28"/>
+        <EditorIndex Value="2"/>
+        <TopLine Value="65"/>
+        <CursorPos X="37" Y="74"/>
+        <UsageCount Value="32"/>
         <Loaded Value="True"/>
       </Unit1>
       <Unit2>
@@ -39,158 +38,209 @@
       </Unit3>
       <Unit4>
         <Filename Value="..\..\src\paxjs.pas"/>
+        <IsVisibleTab Value="True"/>
         <EditorIndex Value="1"/>
-        <TopLine Value="583"/>
-        <CursorPos X="43" Y="592"/>
-        <UsageCount Value="13"/>
+        <TopLine Value="246"/>
+        <CursorPos X="24" Y="254"/>
+        <UsageCount Value="15"/>
         <Loaded Value="True"/>
       </Unit4>
       <Unit5>
         <Filename Value="C:\programmi\lazarus-1.8-32\fpc\3.0.4\source\packages\fcl-json\src\fpjson.pp"/>
-        <EditorIndex Value="2"/>
+        <EditorIndex Value="-1"/>
         <TopLine Value="36"/>
         <CursorPos X="19" Y="48"/>
-        <UsageCount Value="10"/>
-        <Loaded Value="True"/>
+        <UsageCount Value="11"/>
       </Unit5>
+      <Unit6>
+        <Filename Value="C:\programmi\lazarus-1.8-32\fpc\3.0.4\source\rtl\objpas\classes\classesh.inc"/>
+        <IsPartOfProject Value="True"/>
+        <EditorIndex Value="3"/>
+        <TopLine Value="752"/>
+        <CursorPos X="41" Y="553"/>
+        <UsageCount Value="22"/>
+        <Loaded Value="True"/>
+      </Unit6>
+      <Unit7>
+        <Filename Value="C:\programmi\lazarus-1.8-32\fpc\3.0.4\source\rtl\inc\objpash.inc"/>
+        <EditorIndex Value="6"/>
+        <TopLine Value="188"/>
+        <CursorPos X="21" Y="203"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit7>
+      <Unit8>
+        <Filename Value="C:\programmi\lazarus-1.8-32\fpc\3.0.4\source\rtl\inc\objpas.inc"/>
+        <EditorIndex Value="7"/>
+        <TopLine Value="283"/>
+        <CursorPos X="53" Y="294"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit8>
+      <Unit9>
+        <Filename Value="C:\programmi\lazarus-1.8-32\fpc\3.0.4\source\rtl\objpas\classes\collect.inc"/>
+        <EditorIndex Value="5"/>
+        <TopLine Value="295"/>
+        <CursorPos X="30" Y="299"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit9>
+      <Unit10>
+        <Filename Value="C:\programmi\lazarus-1.8-32\fpc\3.0.4\source\rtl\objpas\classes\persist.inc"/>
+        <EditorIndex Value="4"/>
+        <TopLine Value="46"/>
+        <CursorPos X="3" Y="49"/>
+        <UsageCount Value="11"/>
+        <Loaded Value="True"/>
+      </Unit10>
     </Units>
     <JumpHistory Count="30" HistoryIndex="29">
       <Position1>
         <Filename Value="..\..\src\paxjs.pas"/>
-        <Caret Line="18" Column="22" TopLine="9"/>
+        <Caret Line="826" TopLine="820"/>
       </Position1>
       <Position2>
         <Filename Value="..\..\src\paxjs.pas"/>
-        <Caret Line="922" TopLine="913"/>
+        <Caret Line="827" TopLine="820"/>
       </Position2>
       <Position3>
-        <Filename Value="jsonDemo.lpr"/>
-        <Caret Line="47" Column="36" TopLine="37"/>
+        <Filename Value="..\..\src\paxjs.pas"/>
+        <Caret Line="828" TopLine="820"/>
       </Position3>
       <Position4>
         <Filename Value="..\..\src\paxjs.pas"/>
-        <Caret Line="18" Column="42" TopLine="9"/>
+        <Caret Line="829" TopLine="820"/>
       </Position4>
       <Position5>
         <Filename Value="..\..\src\paxjs.pas"/>
-        <Caret Line="916" Column="3" TopLine="906"/>
+        <Caret Line="830" TopLine="820"/>
       </Position5>
       <Position6>
-        <Filename Value="C:\programmi\lazarus-1.8-32\fpc\3.0.4\source\packages\fcl-json\src\fpjson.pp"/>
-        <Caret Line="123" Column="14" TopLine="116"/>
+        <Filename Value="..\..\src\paxjs.pas"/>
+        <Caret Line="831" TopLine="820"/>
       </Position6>
       <Position7>
         <Filename Value="..\..\src\paxjs.pas"/>
-        <Caret Line="819" Column="26" TopLine="809"/>
+        <Caret Line="832" TopLine="820"/>
       </Position7>
       <Position8>
         <Filename Value="..\..\src\paxjs.pas"/>
-        <Caret Line="53" Column="30" TopLine="42"/>
+        <Caret Line="834" TopLine="820"/>
       </Position8>
       <Position9>
         <Filename Value="..\..\src\paxjs.pas"/>
-        <Caret Line="465" Column="5" TopLine="459"/>
+        <Caret Line="328" TopLine="319"/>
       </Position9>
       <Position10>
         <Filename Value="..\..\src\paxjs.pas"/>
-        <Caret Line="485" TopLine="469"/>
+        <Caret Line="329" TopLine="319"/>
       </Position10>
       <Position11>
         <Filename Value="..\..\src\paxjs.pas"/>
-        <Caret Line="598" TopLine="585"/>
+        <Caret Line="330" TopLine="319"/>
       </Position11>
       <Position12>
         <Filename Value="..\..\src\paxjs.pas"/>
-        <Caret Line="884" TopLine="874"/>
+        <Caret Line="332" TopLine="319"/>
       </Position12>
       <Position13>
         <Filename Value="..\..\src\paxjs.pas"/>
-        <Caret Line="42" Column="8" TopLine="37"/>
+        <Caret Line="252" TopLine="243"/>
       </Position13>
       <Position14>
         <Filename Value="..\..\src\paxjs.pas"/>
-        <Caret Line="883" Column="68" TopLine="867"/>
+        <Caret Line="254" TopLine="243"/>
       </Position14>
       <Position15>
         <Filename Value="..\..\src\paxjs.pas"/>
-        <Caret Line="47" Column="17" TopLine="37"/>
+        <Caret Line="255" TopLine="243"/>
       </Position15>
       <Position16>
-        <Filename Value="jsonDemo.lpr"/>
-        <Caret Line="20" Column="35" TopLine="6"/>
+        <Filename Value="..\..\src\paxjs.pas"/>
+        <Caret Line="253" TopLine="249"/>
       </Position16>
       <Position17>
         <Filename Value="jsonDemo.lpr"/>
-        <Caret Line="54" TopLine="52"/>
+        <Caret Line="57" TopLine="48"/>
       </Position17>
       <Position18>
-        <Filename Value="jsonDemo.lpr"/>
-        <Caret Line="19" Column="15" TopLine="11"/>
+        <Filename Value="..\..\src\paxjs.pas"/>
+        <Caret Line="267" Column="16" TopLine="251"/>
       </Position18>
       <Position19>
         <Filename Value="jsonDemo.lpr"/>
-        <Caret Line="32" TopLine="30"/>
+        <Caret Line="57" TopLine="48"/>
       </Position19>
       <Position20>
-        <Filename Value="jsonDemo.lpr"/>
-        <Caret Line="20" Column="15" TopLine="10"/>
+        <Filename Value="..\..\src\paxjs.pas"/>
+        <Caret Line="254" TopLine="251"/>
       </Position20>
       <Position21>
         <Filename Value="jsonDemo.lpr"/>
-        <Caret Line="59" TopLine="41"/>
+        <Caret Line="57" TopLine="48"/>
       </Position21>
       <Position22>
-        <Filename Value="jsonDemo.lpr"/>
-        <Caret Line="19" Column="24" TopLine="11"/>
+        <Filename Value="..\..\src\paxjs.pas"/>
+        <Caret Line="830" TopLine="820"/>
       </Position22>
       <Position23>
-        <Filename Value="jsonDemo.lpr"/>
-        <Caret Line="34" Column="8" TopLine="31"/>
+        <Filename Value="..\..\src\paxjs.pas"/>
+        <Caret Line="831" TopLine="820"/>
       </Position23>
       <Position24>
         <Filename Value="..\..\src\paxjs.pas"/>
-        <Caret Line="527" Column="24" TopLine="516"/>
+        <Caret Line="832" TopLine="820"/>
       </Position24>
       <Position25>
         <Filename Value="..\..\src\paxjs.pas"/>
-        <Caret Line="47" Column="14" TopLine="42"/>
+        <Caret Line="833" TopLine="820"/>
       </Position25>
       <Position26>
         <Filename Value="..\..\src\paxjs.pas"/>
-        <Caret Line="569" Column="3" TopLine="567"/>
+        <Caret Line="834" TopLine="820"/>
       </Position26>
       <Position27>
         <Filename Value="..\..\src\paxjs.pas"/>
-        <Caret Line="48" Column="14" TopLine="38"/>
+        <Caret Line="835" TopLine="820"/>
       </Position27>
       <Position28>
         <Filename Value="..\..\src\paxjs.pas"/>
-        <Caret Line="585" Column="3" TopLine="583"/>
+        <Caret Line="836" TopLine="820"/>
       </Position28>
       <Position29>
         <Filename Value="..\..\src\paxjs.pas"/>
-        <Caret Line="48" Column="14" TopLine="39"/>
+        <Caret Line="837" TopLine="821"/>
       </Position29>
       <Position30>
         <Filename Value="..\..\src\paxjs.pas"/>
-        <Caret Line="592" Column="43" TopLine="583"/>
+        <Caret Line="839" TopLine="823"/>
       </Position30>
     </JumpHistory>
   </ProjectSession>
   <Debugging>
-    <BreakPoints Count="1">
+    <BreakPoints Count="2">
       <Item1>
         <Kind Value="bpkSource"/>
         <WatchScope Value="wpsLocal"/>
         <WatchKind Value="wpkWrite"/>
-        <Source Value="..\..\src\paxjs.pas"/>
-        <Line Value="330"/>
+        <Source Value="jsonDemo.lpr"/>
+        <Line Value="57"/>
       </Item1>
+      <Item2>
+        <Kind Value="bpkSource"/>
+        <WatchScope Value="wpsLocal"/>
+        <WatchKind Value="wpkWrite"/>
+        <Source Value="..\..\src\paxjs.pas"/>
+        <Line Value="254"/>
+      </Item2>
     </BreakPoints>
-    <Watches Count="1">
+    <Watches Count="2">
       <Item1>
         <Expression Value="jsonData"/>
       </Item1>
+      <Item2>
+        <Expression Value="ACollection"/>
+      </Item2>
     </Watches>
   </Debugging>
 </CONFIG>

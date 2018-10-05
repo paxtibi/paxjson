@@ -163,7 +163,7 @@ procedure RegisterJSONClass(aClass: TClass);
 var
   aClassname: string;
 begin
-  //writeln('RegisterJSONClass(', aClass.ClassName, ')');
+  //writeln('-->RegisterJSONClass(', aClass.ClassName, ')');
   try
     EnterCriticalsection(ClassCS);
     while ClassList.IndexOf(AClass) = -1 do
@@ -181,6 +181,7 @@ begin
   finally
     LeaveCriticalsection(ClassCS);
   end;
+  //writeln('<--RegisterJSONClass(', aClass.ClassName, ')');
 end;
 
 function GetJSONClass(const AClassName: string): TClass;
@@ -188,7 +189,7 @@ var
   I: integer;
   currentName: string;
 begin
-  //writeln('GetJSONClass(', AClassName, ')');
+  //writeln('-->GetJSONClass(', AClassName, ')');
   try
     EnterCriticalsection(ClassCS);
     for I := ClassList.Count - 1 downto 0 do
@@ -202,6 +203,7 @@ begin
   finally
     LeaveCriticalsection(ClassCS);
   end;
+  //writeln('<--GetJSONClass(', AClassName, ')');
 end;
 
 function camelCase(const aString: string): string;
@@ -247,17 +249,22 @@ var
   handlers: THandlerList;
   h: TJsonTypeHandler;
 begin
-  for idx := 0 to arrayNode.Count - 1 do
-  begin
-    childNode := arrayNode[idx];
-    getHandlers(tkClass, handlers);
-    aCollectionItem := aCollection.Add;
-    for h in handlers do
+  getHandlers(tkClass, handlers);
+  try
+  //Writeln(ACollection.ItemClass.ClassName);
+    for idx := 0 to arrayNode.Count - 1 do
     begin
-      if h.parse(aCollectionItem, nil, childNode) then
-        break;
+      childNode := arrayNode[idx];
+      aCollectionItem := aCollection.Add;
+      for h in handlers do
+      begin
+        if h.parse(aCollectionItem, nil, childNode) then
+          break;
+      end;
     end;
+  except
   end;
+  handlers.Free;
 end;
 
 function TJSONCollectionTypeHandle.stringifyCollection(ACollection: TCollection; var Res: TJSONData): boolean;
@@ -822,15 +829,22 @@ var
   h: TJsonTypeHandler;
 begin
   jsonData := GetJSON(source, True);
-  result := clz.Create;
-  getHandlers(tkObject, handlers);
-  for h in handlers do
-  begin
-    if h.parse(Result, nil, jsonData) then
-      break;
+  try
+  //Writeln(PVmt(clz)^.vInstanceSize);
+    result := clz.newinstance;
+    result.create;
+    getHandlers(tkObject, handlers);
+    for h in handlers do
+    begin
+      if h.parse(Result, nil, jsonData) then
+        break;
+    end;
+    handlers.Free;
+    jsonData.Free;
+  except
+    if result <> nil then
+      result.FreeInstance;
   end;
-  handlers.Free;
-  jsonData.Free;
 end;
 
 function TJSON3.stringify(const obj: TObject): TJSONStringType;
@@ -867,7 +881,7 @@ begin
         jsonData.Free;
     except
       on e: Exception do
-        Writeln(e.message);
+      //Writeln(e.message);
     end;
   end;
 end;
@@ -889,7 +903,7 @@ initialization
   RegisterJsonTypeHandler(tkDynArray, TJSONDynArrayIntegerTypeHandle.Create);
   RegisterJsonTypeHandler(tkEnumeration, TJSONEnumerationTypeHandle.Create);
   RegisterJsonTypeHandler(tkClass, TJSONCollectionTypeHandle.Create);
-  //RegisterJsonTypeHandler(tkObject, TJSONCollectionTypeHandle.Create);
+  RegisterJsonTypeHandler(tkObject, TJSONCollectionTypeHandle.Create);
 
 finalization;
   ClassList.Free;

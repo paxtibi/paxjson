@@ -13,6 +13,7 @@ uses {$IFDEF UNIX} {$IFDEF UseCThreads}
 const
   SimpleObjectJSONString = '{propertyFloat: 1.0,PropertyInteger:2,PropertyString:"3",lastUpdate:"2018-01-01T00:00:00",returnCodes:["4","5"],returnValues:[6,7]}';
   ComplexObjectJSONString = '{"EnumProperty":"enum2","SimpleObject":' + SimpleObjectJSONString + '}';
+  CollectionJSONString = '[{"APropery":10},{"APropery":11},{"APropery":12},{"APropery":13},{"APropery":14}]';
 
 type
   { TJSONDemo }
@@ -43,14 +44,20 @@ type
     col := TACollection.Create;
     for idx := 0 to 4 do
     begin
-      TACollectionItem(col.Add).APropery := idx;
+      TACollectionItem(col.Add).APropery := idx + 10;
     end;
     Writeln(JSON.stringify(col));
+    col.Free;
   end;
 
   procedure TJSONDemo.DoCollectionParse;
+  var
+    col: TACollection;
   begin
-
+    col := JSON.parse(CollectionJSONString, TACollection) as TACollection;
+    Writeln(JSON.stringify(col));
+    if col <> nil then
+      col.Free;
   end;
 
   procedure TJSONDemo.DoComplexObjectStringify;
@@ -115,12 +122,16 @@ type
 
   procedure TJSONDemo.DoRun;
   begin
+    RegisterJSONClass(TSimpleObject);
+    RegisterJSONClass(TComplexObject);
+    RegisterJSONClass(TACollection);
     DoCaseFunctions;
     DoSimpleObjectStringify;
     DoSimpleObjectParse;
     DoComplexObjectStringify;
     DoComplexObjectParse;
     DoCollectionStringify;
+    DoCollectionParse;
     Terminate(0);
   end;
 
