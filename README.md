@@ -23,10 +23,10 @@ Register a class for the parser method
 Find a class by name in the registry.
 
 ### function camelCase(aString: string): string;
-Turn a string into a camel case. for example "CamelCase"
+Turn a string into a camel case. eg "CamelCase"
 
 ### function pascalCase(aString: string): string;
-Translate a string in Pascal case. for example "PascalCase".
+Translate a string in Pascal case. eg "PascalCase".
 
 ### function selectorCase(aString: string): string;   
 Translate a string into "selector case". css libraries like Bootstrap.css use "-" to separate individual words. eg "selector-case".
