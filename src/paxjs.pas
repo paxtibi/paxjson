@@ -14,7 +14,7 @@ type
   TDynIntegerArray = array of integer;
   { TJSON }
   TJSON3 = class
-    function parse(source: TJSONStringType; const clz: TClass): TObject; overload;
+    function parse(source: TJSONStringType; clz: TClass): TObject; overload;
     function stringify(const obj: TObject): TJSONStringType;
   end;
 
@@ -105,9 +105,9 @@ var
 procedure RegisterJsonTypeHandler(typeKind: TTypeKind; anHandler: TJsonTypeHandler);
 procedure RegisterJSONClass(aClass: TClass);
 function GetJSONClass(const AClassName: string): TClass;
-function camelCase(aString: string): string;
-function pascalCase(aString: string): string;
-function selectorCase(aString: string): string;
+function camelCase(const aString: string): string;
+function pascalCase(const aString: string): string;
+function selectorCase(const aString: string): string;
 
 implementation
 
@@ -204,22 +204,22 @@ begin
   end;
 end;
 
-function camelCase(aString: string): string;
+function camelCase(const aString: string): string;
 begin
   result := ReplaceRegExpr('([A-Z])', aString, '\U$1', True);
   result[1] := lowerCase(Result[1]);
 end;
 
-function pascalCase(aString: string): string;
+function pascalCase(const aString: string): string;
 begin
   result := ReplaceRegExpr('([A-Z])', aString, '\U$1', True);
   result[1] := upCase(Result[1]);
 end;
 
 
-function selectorCase(aString: string): string;
+function selectorCase(const aString: string): string;
 begin
-  result[1] := lowerCase(aString[1]);
+  result := lowerCase(aString[1]) + copy(aString, 2, Length(aString));
   result := ReplaceRegExpr('([A-Z])', result, '-\L$1', True);
 end;
 
@@ -725,7 +725,7 @@ end;
 
 { TJSON }
 
-function TJSON3.parse(source: TJSONStringType; const clz: TClass): TObject;
+function TJSON3.parse(source: TJSONStringType; clz: TClass): TObject;
 var
   jsonData: TJSONData;
   handlers: THandlerList;

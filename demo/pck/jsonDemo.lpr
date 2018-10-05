@@ -30,9 +30,11 @@ type
     so: TSimpleObject;
     co: TComplexObject;
   begin
+    Writeln(selectorCase('thisIsATry'));
+    Writeln(pascalCase('thisIsATry'));
+    Writeln(camelCase('ThisIsATry'));
     so := JSON.parse('{propertyInteger:10, propertyString:"Ciao", propertyFloat:10.6, returnCodes:["10","20"]}', TSimpleObject) as TSimpleObject;
     co := JSON.parse('{ EnumProperty : "enum2", SimpleObject : {"property-integer":10, "property-string":"Ciao", PropertyFloat:10.6}}', TComplexObject) as TComplexObject;
-    //writeln(so.ToString);
     writeln(co.ToString);
     co.SimpleObject.Free;
     co.SimpleObject := JSON.parse(JSON.stringify(so), TSimpleObject) as TSimpleObject;
