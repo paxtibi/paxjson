@@ -97,6 +97,17 @@ type
     function stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean; override;
   end;
 
+  { TJSONCollectionTypeHandle }
+
+  TJSONCollectionTypeHandle = class(TJsonTypeHandler)
+  protected
+    function stringifyCollection(ACollection: TCollection; var Res: TJSONData): boolean;
+    function stringifyPropertyList(AObject: TObject; var Res: TJSONData): boolean;
+  public
+    function parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean; override;
+    function stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean; override;
+  end;
+
 
 var
   JSON: TJSON3;
@@ -152,14 +163,13 @@ var
   ClassCS: TRTLCriticalSection;
 
 procedure RegisterJsonTypeHandler(aTypeKind: TTypeKind; aHandler: TJsonTypeHandler);
-
 var
   holder: TJSONTypeHandlerHolder;
 begin
   holder := TJSONTypeHandlerHolder.Create;
   holder.Kind := aTypeKind;
   holder.Handler := aHandler;
-  Registry.Insert(0, holder);
+  Registry.Add(holder);
 end;
 
 procedure RegisterJSONClass(aClass: TClass);
@@ -192,7 +202,7 @@ var
 begin
   try
     EnterCriticalsection(ClassCS);
-    for I := 0 to ClassList.Count - 1 do
+    for I := ClassList.Count - 1 downto 0 do
     begin
       Result := ClassList.Items[I];
       currentName := Result.ClassName;
@@ -227,12 +237,136 @@ end;
 procedure getHandlers(typeKind: TTypeKind; out handlers: THandlerList);
 var
   holder: TJSONTypeHandlerHolder;
+  idx: integer;
 begin
   handlers := THandlerList.Create(False);
-  for holder in Registry do
+  for idx := Registry.Count - 1 downto 0 do
   begin
+    holder := Registry[idx];
     if holder.FKind = typeKind then
-      handlers.Insert(0, holder.Handler);
+      handlers.add(holder.Handler);
+  end;
+end;
+
+{ TJSONCollectionTypeHandle }
+
+function TJSONCollectionTypeHandle.stringifyCollection(ACollection: TCollection; var Res: TJSONData): boolean;
+var
+  aCollectionItem: TCollectionItem;
+  childNode: TJSONData;
+  handlers: THandlerList;
+  h: TJSONTypeHandler;
+begin
+  Res := TJSONArray.Create;
+  getHandlers(tkClass, handlers);
+  for aCollectionItem in aCollection do
+  begin
+    for h in handlers do
+    begin
+      if h.stringify(aCollectionItem, nil, childNode) then
+        break;
+    end;
+    if childNode <> nil then
+      TJSONArray(res).Add(childNode);
+  end;
+  handlers.Free;
+end;
+
+function TJSONCollectionTypeHandle.stringifyPropertyList(AObject: TObject; var Res: TJSONData): boolean;
+var
+  idx: integer;
+  handlers: THandlerList;
+  h: TJSONTypeHandler;
+  PList: PPropList;
+  Count: integer;
+  Size: integer;
+  childNode: TJSONData;
+begin
+  result := True;
+  Count := GetPropList(AObject.ClassInfo, tkAny, nil);
+  Size := Count * SizeOf(Pointer);
+  GetMem(PList, Size);
+  GetPropList(AObject.ClassInfo, tkAny, PList);
+  try
+    for idx := 0 to Count - 1 do
+    begin
+      try
+        getHandlers(PList^[idx]^.PropType^.Kind, handlers);
+        for h in handlers do
+        begin
+          if h.stringify(AObject, PList^[idx], childNode) then
+          begin
+            TJSONObject(Res).Add(PList^[idx]^.Name, childNode);
+            break;
+          end;
+        end;
+      finally
+        FreeAndNil(handlers);
+      end;
+    end;
+  finally
+    FreeMem(PList);
+  end;
+end;
+
+function TJSONCollectionTypeHandle.parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean;
+var
+  clz: TClass;
+  idx: integer;
+  jsonArray: TJSONArray;
+  childNode: TJSONData;
+  aCollection: TCollection;
+  aCollectionItem: TCollectionItem;
+  handlers: THandlerList;
+  h: TJsonTypeHandler;
+begin
+  result := False;
+  if (Info <> nil) and (Info^.PropType^.Kind in [tkClass, tkObject]) then
+  begin
+    clz := GetClass(Info^.PropType^.Name);
+    if clz.InheritsFrom(TCollection) then
+    begin
+      aCollection := GetObjectProp(AObject, Info) as TCollection;
+      jsonArray := TJSONArray(node);
+      begin
+        for idx := 0 to jsonArray.Count - 1 do
+        begin
+          childNode := jsonArray[idx];
+          getHandlers(tkClass, handlers);
+          aCollectionItem := aCollection.Add;
+          for h in handlers do
+          begin
+            if h.parse(aCollectionItem, nil, childNode) then
+              break;
+          end;
+        end;
+      end;
+      result := True;
+    end;
+  end;
+end;
+
+function TJSONCollectionTypeHandle.stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean;
+var
+  clz: TClass;
+  aCollection: TCollection;
+begin
+  result := False;
+  if (Info = nil) and (AObject is TCollection) then
+  begin
+    stringifyCollection(AObject as TCollection, res);
+    result := True;
+  end
+  else
+  if (Info <> nil) and (Info^.PropType^.Kind in [tkClass, tkObject]) then
+  begin
+    clz := GetClass(Info^.PropType^.Name);
+    if clz.InheritsFrom(TCollection) then
+    begin
+      aCollection := GetObjectProp(AObject, Info) as TCollection;
+      stringifyCollection(aCollection, Res);
+      result := True;
+    end;
   end;
 end;
 
@@ -573,11 +707,9 @@ begin
     for idx := 0 to Count - 1 do
     begin
       try
-        Writeln(PList^[idx]^.Name, ':', PList^[idx]^.PropType^.Name);
         getHandlers(PList^[idx]^.PropType^.Kind, handlers);
         for h in handlers do
         begin
-          writeln('  ', h.ClassName);
           if h.stringify(AObject, PList^[idx], childNode) then
           begin
             TJSONObject(Res).Add(PList^[idx]^.Name, childNode);
@@ -638,10 +770,6 @@ begin
             childNode := TJSONObject(node).Find(pname);
           end;
           getHandlers(PList^[idx]^.PropType^.Kind, handlers);
-          {
-          if handlers.Count = 0 then
-            Writeln(PList^[idx]^.Name, ' ', PList^[idx]^.PropType^.Name, ' ', PList^[idx]^.PropType^.Kind);
-          }
           for h in handlers do
           begin
             if h.parse(AObject, PList^[idx], childNode) then
@@ -676,7 +804,6 @@ end;
 
 function TJSONObjectTypeHandler.stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean;
 var
-  idx: integer;
   propObject: TObject;
   childNode: TJSONData;
 begin
@@ -758,6 +885,16 @@ begin
         break;
     end;
     handlers.Free;
+    if jsonData = nil then
+    begin
+      getHandlers(tkClass, handlers);
+      for h in handlers do
+      begin
+        if h.stringify(obj, nil, jsonData) then
+          break;
+      end;
+      handlers.Free;
+    end;
     if jsonData <> nil then
       result := jsonData.FormatJSON()
     else
@@ -786,6 +923,8 @@ initialization
   RegisterJsonTypeHandler(tkDynArray, TJSONDynStringTypeHandle.Create);
   RegisterJsonTypeHandler(tkDynArray, TJSONDynArrayIntegerTypeHandle.Create);
   RegisterJsonTypeHandler(tkEnumeration, TJSONEnumerationTypeHandle.Create);
+  RegisterJsonTypeHandler(tkClass, TJSONCollectionTypeHandle.Create);
+  RegisterJsonTypeHandler(tkObject, TJSONCollectionTypeHandle.Create);
 
 finalization;
   ClassList.Free;

@@ -55,11 +55,51 @@ type
     property EnumProperty: TEnumProperty read FEnumProperty write SetEnumProperty;
   end;
 
+  { TACollectionItem }
+
+  TACollectionItem = class(TCollectionItem)
+  private
+    FAPropery: integer;
+    procedure SetAPropery(AValue: integer);
+  public
+    constructor Create(ACollection: TCollection); override;
+  published
+    property APropery: integer read FAPropery write SetAPropery;
+  end;
+
+  { TACollection }
+
+  TACollection = class(TCollection)
+  public
+    constructor Create;
+  end;
 
 implementation
 
 uses
   paxjs, typinfo;
+
+{ TACollectionItem }
+
+procedure TACollectionItem.SetAPropery(AValue: integer);
+begin
+  if FAPropery = AValue then
+    Exit;
+  FAPropery := AValue;
+end;
+
+constructor TACollectionItem.Create(ACollection: TCollection);
+begin
+  inherited Create(ACollection);
+  FAPropery := ID;
+end;
+
+{ TACollection }
+
+constructor TACollection.Create;
+begin
+  inherited Create(TACollectionItem);
+end;
 
 
 { TComplexObject }
@@ -148,5 +188,6 @@ end;
 initialization
   RegisterJSONClass(TSimpleObject);
   RegisterJSONClass(TComplexObject);
+  RegisterJSONClass(TACollection);
 
 end.
