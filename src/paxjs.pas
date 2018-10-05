@@ -40,27 +40,13 @@ type
     function stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean; override;
   end;
 
-  { TJSONSingleTypeHandler }
 
-  TJSONSingleTypeHandler = class(TJsonTypeHandler)
+  { TJSONFloatTypeHandler }
+
+  TJSONFloatTypeHandler = class(TJsonTypeHandler)
     function parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean; override;
     function stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean; override;
   end;
-
-  { TJSONDoubleTypeHandler }
-
-  TJSONDoubleTypeHandler = class(TJsonTypeHandler)
-    function parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean; override;
-    function stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean; override;
-  end;
-
-  { TJSONExtendedTypeHandler }
-
-  TJSONExtendedTypeHandler = class(TJsonTypeHandler)
-    function parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean; override;
-    function stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean; override;
-  end;
-
 
   { TJSONStringTypeHandle }
 
@@ -101,6 +87,7 @@ type
 
   TJSONCollectionTypeHandle = class(TJsonTypeHandler)
   protected
+    procedure parseCollection(ACollection: TCollection; arrayNode: TJSONArray);
     function stringifyCollection(ACollection: TCollection; var Res: TJSONData): boolean;
     function stringifyPropertyList(AObject: TObject; var Res: TJSONData): boolean;
   public
@@ -176,6 +163,7 @@ procedure RegisterJSONClass(aClass: TClass);
 var
   aClassname: string;
 begin
+  //writeln('RegisterJSONClass(', aClass.ClassName, ')');
   try
     EnterCriticalsection(ClassCS);
     while ClassList.IndexOf(AClass) = -1 do
@@ -200,6 +188,7 @@ var
   I: integer;
   currentName: string;
 begin
+  //writeln('GetJSONClass(', AClassName, ')');
   try
     EnterCriticalsection(ClassCS);
     for I := ClassList.Count - 1 downto 0 do
@@ -249,6 +238,27 @@ begin
 end;
 
 { TJSONCollectionTypeHandle }
+
+procedure TJSONCollectionTypeHandle.parseCollection(ACollection: TCollection; arrayNode: TJSONArray);
+var
+  idx: integer;
+  childNode: TJSONData;
+  aCollectionItem: TCollectionItem;
+  handlers: THandlerList;
+  h: TJsonTypeHandler;
+begin
+  for idx := 0 to arrayNode.Count - 1 do
+  begin
+    childNode := arrayNode[idx];
+    getHandlers(tkClass, handlers);
+    aCollectionItem := aCollection.Add;
+    for h in handlers do
+    begin
+      if h.parse(aCollectionItem, nil, childNode) then
+        break;
+    end;
+  end;
+end;
 
 function TJSONCollectionTypeHandle.stringifyCollection(ACollection: TCollection; var Res: TJSONData): boolean;
 var
@@ -312,35 +322,22 @@ end;
 function TJSONCollectionTypeHandle.parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean;
 var
   clz: TClass;
-  idx: integer;
-  jsonArray: TJSONArray;
-  childNode: TJSONData;
   aCollection: TCollection;
-  aCollectionItem: TCollectionItem;
-  handlers: THandlerList;
-  h: TJsonTypeHandler;
 begin
   result := False;
+  if (AObject is TCollection) then
+  begin
+    parseCollection(AObject as TCollection, node as TJSONArray);
+    result := True;
+  end
+  else
   if (Info <> nil) and (Info^.PropType^.Kind in [tkClass, tkObject]) then
   begin
-    clz := GetClass(Info^.PropType^.Name);
+    clz := GetJSONClass(Info^.PropType^.Name);
     if clz.InheritsFrom(TCollection) then
     begin
       aCollection := GetObjectProp(AObject, Info) as TCollection;
-      jsonArray := TJSONArray(node);
-      begin
-        for idx := 0 to jsonArray.Count - 1 do
-        begin
-          childNode := jsonArray[idx];
-          getHandlers(tkClass, handlers);
-          aCollectionItem := aCollection.Add;
-          for h in handlers do
-          begin
-            if h.parse(aCollectionItem, nil, childNode) then
-              break;
-          end;
-        end;
-      end;
+      parseCollection(aCollection, node as TJSONArray);
       result := True;
     end;
   end;
@@ -360,7 +357,7 @@ begin
   else
   if (Info <> nil) and (Info^.PropType^.Kind in [tkClass, tkObject]) then
   begin
-    clz := GetClass(Info^.PropType^.Name);
+    clz := GetJSONClass(Info^.PropType^.Name);
     if clz.InheritsFrom(TCollection) then
     begin
       aCollection := GetObjectProp(AObject, Info) as TCollection;
@@ -467,28 +464,6 @@ begin
   end;
 end;
 
-{ TJSONExtendedTypeHandler }
-
-function TJSONExtendedTypeHandler.parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean;
-begin
-  result := False;
-  if (info^.PropType^.Kind = tkFloat) and (info^.PropType^.Name = 'Extended') and (node <> nil) then
-  begin
-    SetFloatProp(AObject, Info^.Name, node.AsFloat);
-    result := True;
-  end;
-end;
-
-function TJSONExtendedTypeHandler.stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean;
-begin
-  result := False;
-  if (info^.PropType^.Kind = tkFloat) and (info^.PropType^.Name = 'Extended') then
-  begin
-    res := TJSONFloatNumber.Create(GetFloatProp(AObject, Info));
-    result := True;
-  end;
-end;
-
 { TJSONEnumerationTypeHandle }
 
 function TJSONEnumerationTypeHandle.parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean;
@@ -587,60 +562,41 @@ begin
   end;
 end;
 
-{ TJSONDoubleTypeHandler }
+{ TJSONFloatTypeHandler }
 
-function TJSONDoubleTypeHandler.parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean;
+function TJSONFloatTypeHandler.parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean;
 begin
   result := False;
-  if (info^.PropType^.Kind = tkFloat) and (info^.PropType^.Name = 'Double') and (node <> nil) then
-  begin
-    SetFloatProp(AObject, Info^.Name, node.AsFloat);
-    result := True;
-  end
-  else
   if (info^.PropType^.Kind = tkFloat) and (info^.PropType^.Name = 'TDateTime') and (node <> nil) then
   begin
     SetFloatProp(AObject, Info^.Name, ISO8601ToDate(node.AsString));
     result := True;
-  end;
-end;
-
-function TJSONDoubleTypeHandler.stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean;
-begin
-  result := False;
-  if (info^.PropType^.Kind = tkFloat) and (info^.PropType^.Name = 'Double') then
-  begin
-    res := TJSONFloatNumber.Create(GetFloatProp(AObject, Info));
-    result := True;
   end
   else
-  if (info^.PropType^.Kind = tkFloat) and (info^.PropType^.Name = 'TDateTime') then
-  begin
-    res := TJSONString.Create(DateToISO8601(GetFloatProp(AObject, Info)));
-    result := True;
-  end;
-end;
-
-{ TJSONSingleTypeHandler }
-
-function TJSONSingleTypeHandler.parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean;
-begin
-  result := False;
-  if (info^.PropType^.Kind = tkFloat) and (info^.PropType^.Name = 'Single') and (node <> nil) then
+  if (info^.PropType^.Kind = tkFloat) and (node <> nil) then
   begin
     SetFloatProp(AObject, Info^.Name, node.AsFloat);
     result := True;
   end;
 end;
 
-function TJSONSingleTypeHandler.stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean;
+function TJSONFloatTypeHandler.stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean;
 begin
-  if (info^.PropType^.Kind = tkFloat) and (info^.PropType^.Name = 'Single') then
+  result := False;
+  if (info^.PropType^.Kind = tkFloat) and (info^.PropType^.Name = 'TDateTime') then
   begin
-    res := TJSONFloatNumber.Create(GetFloatProp(AObject, Info^.Name));
+    res := TJSONString.Create(DateToISO8601(GetFloatProp(AObject, Info)));
+    result := True;
+  end
+  else
+  if (info^.PropType^.Kind = tkFloat) then
+  begin
+    res := TJSONFloatNumber.Create(GetFloatProp(AObject, Info));
     result := True;
   end;
+
 end;
+
 
 { TJSONIntegerTypeHandle }
 
@@ -808,6 +764,12 @@ var
   childNode: TJSONData;
 begin
   result := False;
+  if AObject = nil then
+  begin
+    res := CreateJSON;
+    Result := True;
+  end
+  else
   if info = nil then
   begin
     Res := TJSONObject.Create;
@@ -896,12 +858,17 @@ begin
       handlers.Free;
     end;
     if jsonData <> nil then
-      result := jsonData.FormatJSON()
+      result := jsonData.FormatJSON(AsCompressedJSON)
     else
       result := 'null';
   finally
-    if jsonData <> nil then
-      jsonData.Free;
+    try
+      if jsonData <> nil then
+        jsonData.Free;
+    except
+      on e: Exception do
+        Writeln(e.message);
+    end;
   end;
 end;
 
@@ -914,9 +881,7 @@ initialization
   RegisterJsonTypeHandler(tkClass, TJSONObjectTypeHandler.Create);
   RegisterJsonTypeHandler(tkInt64, TJSONIntegerTypeHandle.Create);
   RegisterJsonTypeHandler(tkInteger, TJSONIntegerTypeHandle.Create);
-  RegisterJsonTypeHandler(tkFloat, TJSONExtendedTypeHandler.Create);
-  RegisterJsonTypeHandler(tkFloat, TJSONDoubleTypeHandler.Create);
-  RegisterJsonTypeHandler(tkFloat, TJSONSingleTypeHandler.Create);
+  RegisterJsonTypeHandler(tkFloat, TJSONFloatTypeHandler.Create);
   RegisterJsonTypeHandler(tkString, TJSONStringTypeHandle.Create);
   RegisterJsonTypeHandler(tkAString, TJSONStringTypeHandle.Create);
   RegisterJsonTypeHandler(tkWString, TJSONWideStringTypeHandle.Create);
@@ -924,7 +889,7 @@ initialization
   RegisterJsonTypeHandler(tkDynArray, TJSONDynArrayIntegerTypeHandle.Create);
   RegisterJsonTypeHandler(tkEnumeration, TJSONEnumerationTypeHandle.Create);
   RegisterJsonTypeHandler(tkClass, TJSONCollectionTypeHandle.Create);
-  RegisterJsonTypeHandler(tkObject, TJSONCollectionTypeHandle.Create);
+  //RegisterJsonTypeHandler(tkObject, TJSONCollectionTypeHandle.Create);
 
 finalization;
   ClassList.Free;

@@ -10,12 +10,22 @@ uses {$IFDEF UNIX} {$IFDEF UseCThreads}
   paxjs,
   CustApp { you can add units after this };
 
-type
+const
+  SimpleObjectJSONString = '{propertyFloat: 1.0,PropertyInteger:2,PropertyString:"3",lastUpdate:"2018-01-01T00:00:00",returnCodes:["4","5"],returnValues:[6,7]}';
+  ComplexObjectJSONString = '{"EnumProperty":"enum2","SimpleObject":' + SimpleObjectJSONString + '}';
 
+type
   { TJSONDemo }
 
   TJSONDemo = class(TCustomApplication)
   protected
+    procedure DoCollectionStringify;
+    procedure DoCollectionParse;
+    procedure DoComplexObjectStringify;
+    procedure DoComplexObjectParse;
+    procedure DoSimpleObjectStringify;
+    procedure DoSimpleObjectParse;
+    procedure DoCaseFunctions;
     procedure DoRun; override;
   public
     constructor Create(TheOwner: TComponent); override;
@@ -25,28 +35,92 @@ type
 
   { TJSONDemo }
 
-  procedure TJSONDemo.DoRun;
+  procedure TJSONDemo.DoCollectionStringify;
+  var
+    idx: integer;
+    col: TACollection;
+  begin
+    col := TACollection.Create;
+    for idx := 0 to 4 do
+    begin
+      TACollectionItem(col.Add).APropery := idx;
+    end;
+    Writeln(JSON.stringify(col));
+  end;
+
+  procedure TJSONDemo.DoCollectionParse;
+  begin
+
+  end;
+
+  procedure TJSONDemo.DoComplexObjectStringify;
+  var
+    co: TComplexObject = nil;
+    simpleObject: TSimpleObject;
+  begin
+    co := TComplexObject.Create;
+    simpleObject := JSON.parse(SimpleObjectJSONString, TSimpleObject) as TSimpleObject;
+    co.SimpleObject := simpleObject;
+    co.EnumProperty := enum2;
+    Writeln(JSON.stringify(co));
+    co.Free;
+  end;
+
+  procedure TJSONDemo.DoComplexObjectParse;
+  var
+    co: TComplexObject = nil;
+  begin
+    co := JSON.parse(ComplexObjectJSONString, TComplexObject) as TComplexObject;
+    Writeln(JSON.stringify(co));
+    co.Free;
+  end;
+
+  procedure TJSONDemo.DoSimpleObjectStringify;
   var
     so: TSimpleObject = nil;
-    co: TComplexObject = nil;
-    coll: TACollection = nil;
+    sa: TStringArray;
+    ia: TDynIntegerArray;
+  begin
+    SetLength(sa, 2);
+    SetLength(ia, 2);
+    sa[0] := '4';
+    sa[1] := '5';
+    ia[0] := 6;
+    ia[1] := 7;
+    so := TSimpleObject.Create;
+    so.PropertyFloat := 1.0;
+    so.PropertyInteger := 2;
+    so.PropertyString := '3';
+    so.returnCodes := sa;
+    so.returnValues := ia;
+    writeln(JSON.stringify(so));
+    so.Free;
+  end;
+
+  procedure TJSONDemo.DoSimpleObjectParse;
+  var
+    so: TSimpleObject = nil;
+  begin
+    so := JSON.parse(SimpleObjectJSONString, TSimpleObject) as TSimpleObject;
+    writeln(JSON.stringify(so));
+    so.Free;
+  end;
+
+  procedure TJSONDemo.DoCaseFunctions;
   begin
     Writeln(selectorCase('thisIsATry'));
     Writeln(pascalCase('thisIsATry'));
     Writeln(camelCase('ThisIsATry'));
-    coll := TACollection.Create;
-    coll.Add;
-    coll.Add;
-    Writeln(JSON.stringify(coll));
+  end;
 
-    //so := JSON.parse('{propertyInteger:10, propertyString:"Ciao", propertyFloat:10.6, returnCodes:["10","20"]}', TSimpleObject) as TSimpleObject;
-    co := JSON.parse('{ EnumProperty : "enum2", SimpleObject : {"property-integer":10, "property-string":"Ciao", PropertyFloat:10.6}}', TComplexObject) as TComplexObject;
-    //writeln(co.ToString);
-    co.SimpleObject.Free;
-    //co.SimpleObject := JSON.parse(JSON.stringify(so), TSimpleObject) as TSimpleObject;
-    Writeln(JSON.stringify(co.SimpleObject));
-    FreeAndNil(co);
-    FreeAndNil(so);
+  procedure TJSONDemo.DoRun;
+  begin
+    DoCaseFunctions;
+    DoSimpleObjectStringify;
+    DoSimpleObjectParse;
+    DoComplexObjectStringify;
+    DoComplexObjectParse;
+    DoCollectionStringify;
     Terminate(0);
   end;
 
@@ -78,4 +152,3 @@ begin
   Application.Run;
   Application.Free;
 end.
-
