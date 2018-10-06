@@ -14,11 +14,15 @@
     </CompilerOptions>
     <Description Value="A class like Javascript JSON Object"/>
     <Version Release="1"/>
-    <Files Count="1">
+    <Files Count="2">
       <Item1>
         <Filename Value="..\src\paxjs.pas"/>
         <UnitName Value="paxjs"/>
       </Item1>
+      <Item2>
+        <Filename Value="..\src\paxjsgl.pas"/>
+        <UnitName Value="paxjsgl"/>
+      </Item2>
     </Files>
     <RequiredPkgs Count="1">
       <Item1>

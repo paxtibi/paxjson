@@ -8,7 +8,7 @@ unit paxjson_package;
 interface
 
 uses
-  paxjs, LazarusPackageIntf;
+  paxjs, paxjsgl, LazarusPackageIntf;
 
 implementation
 
