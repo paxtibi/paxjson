@@ -5,10 +5,21 @@ unit omtest;
 interface
 
 uses
-  Classes, SysUtils;
+  Classes, SysUtils, fgl;
 
 type
   TDynIntegerArray = array of integer;
+
+  { TMinimalObject }
+
+  TMinimalObject = class(TObject)
+  private
+    FaProperty: integer;
+    procedure SetaProperty(AValue: integer);
+  published
+    property aProperty: integer read FaProperty write SetaProperty;
+  end;
+
   { TSimpleObject }
 
   TSimpleObject = class(TObject)
@@ -38,6 +49,8 @@ type
     property lastUpdate: TDateTime read FlastUpdate write SetlastUpdate;
   end;
 
+  TMinimalObjectList = specialize TFPGObjectList<TMinimalObject>;
+
   TEnumProperty = (enum1, enum2);
 
   { TComplexObject }
@@ -59,12 +72,14 @@ type
 
   TACollectionItem = class(TCollectionItem)
   private
+    FaProperty: integer;
     FAPropery: integer;
+    procedure SetAProperty(AValue: integer);
     procedure SetAPropery(AValue: integer);
   public
     constructor Create(ACollection: TCollection); override;
   published
-    property APropery: integer read FAPropery write SetAPropery;
+    property aProperty: integer read FAPropery write SetAPropery;
   end;
 
   { TACollection }
@@ -80,7 +95,23 @@ implementation
 uses
   paxjs, typinfo;
 
+{ TMinimalObject }
+
+procedure TMinimalObject.SetaProperty(AValue: integer);
+begin
+  if FaProperty = AValue then
+    Exit;
+  FaProperty := AValue;
+end;
+
 { TACollectionItem }
+
+procedure TACollectionItem.SetAProperty(AValue: integer);
+begin
+  if FAPropery = AValue then
+    Exit;
+  FAPropery := AValue;
+end;
 
 procedure TACollectionItem.SetAPropery(AValue: integer);
 begin
@@ -99,16 +130,13 @@ end;
 
 constructor TACollection.Create;
 begin
-  Writeln('--> TACollection.Create');
   inherited Create(TACollectionItem);
-  Writeln('<-- TACollection.Create');
 end;
 
 function TACollection.Add: TCollectionItem;
 begin
   Result := inherited Add;
 end;
-
 
 
 { TComplexObject }

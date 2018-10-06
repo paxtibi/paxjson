@@ -5,7 +5,7 @@ unit paxjs;
 interface
 
 uses
-  Classes, SysUtils, typinfo, fpjson;
+  Classes, SysUtils, typinfo, fpjson, fgl;
 
 //
 //Date Format: http://es5.github.io/#x15.9.1.15
@@ -19,6 +19,7 @@ type
   end;
 
   TJsonTypeHandler = class
+  public
     function parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean; virtual; abstract;
     function stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean; virtual; abstract;
   end;
@@ -39,7 +40,6 @@ type
     function parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean; override;
     function stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean; override;
   end;
-
 
   { TJSONFloatTypeHandler }
 
@@ -95,22 +95,31 @@ type
     function stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean; override;
   end;
 
-
 var
   JSON: TJSON3;
 
+type
+  EFactoryFailure = class(Exception)
+  end;
+
+  TFactory = function(clz: TClass): TObject;
+  THandlerList = specialize TFPGObjectList<TJsonTypeHandler>;
 
 procedure RegisterJsonTypeHandler(aTypeKind: TTypeKind; aHandler: TJsonTypeHandler);
-procedure RegisterJSONClass(aClass: TClass);
+procedure RegisterJSONClass(aClass: TClass; aFactory: TFactory = nil);
 function GetJSONClass(const AClassName: string): TClass;
+function GetJSONFactory(const AClassName: string): TFactory; overload;
+function GetJSONFactory(const AClass: TClass): TFactory; overload;
 function camelCase(const aString: string): string;
 function pascalCase(const aString: string): string;
 function selectorCase(const aString: string): string;
+procedure getHandlers(typeKind: TTypeKind; out handlers: THandlerList);
+
 
 implementation
 
 uses
-  fgl, jsonparser, RegExpr;
+  jsonparser, RegExpr;
 
 // from fpIndexer
 function DateToISO8601(DateTime: TDateTime): string;
@@ -121,6 +130,11 @@ end;
 function ISO8601ToDate(DateTime: string): TDateTime;
 begin
   Result := EncodeDate(StrToInt(copy(DateTime, 1, 4)), StrToInt(copy(DateTime, 6, 2)), StrToInt(copy(DateTime, 9, 2))) + EncodeTime(StrToInt(copy(DateTime, 12, 2)), StrToInt(copy(DateTime, 15, 2)), StrToInt(copy(DateTime, 18, 2)), 0);
+end;
+
+function GenericCreateCall(clz: TClass): TObject;
+begin
+  result := clz.Create;
 end;
 
 type
@@ -140,9 +154,31 @@ type
   end;
 
   TJSONTypeRegistry = specialize TFPGObjectList<TJSONTypeHandlerHolder>;
-  THandlerList = specialize TFPGObjectList<TJsonTypeHandler>;
 
-  TClassList = specialize TFPGList<TClass>;
+
+  { TClassContainer }
+
+  TClassContainer = class
+  private
+    FtheClass: TClass;
+    FtheFactory: TFactory;
+    procedure SettheClass(AValue: TClass);
+    procedure SettheFactory(AValue: TFactory);
+  public
+    property theClass: TClass read FtheClass write SettheClass;
+    property theFactory: TFactory read FtheFactory write SettheFactory;
+  end;
+
+  TClassList = specialize TFPGList<TClassContainer>;
+
+  { TClassListHelper }
+
+  TClassListHelper = class helper for TClassList
+    function indexOfClass(aClass: TClass): int64;
+    function indexOfClassName(aClassName: shortString): int64;
+    function getClass(aClassName: shortString): TClass;
+    function getFactory(aClassName: shortString): TFactory;
+  end;
 
 var
   Registry: TJSONTypeRegistry;
@@ -159,21 +195,23 @@ begin
   Registry.Add(holder);
 end;
 
-procedure RegisterJSONClass(aClass: TClass);
+procedure RegisterJSONClass(aClass: TClass; aFactory: TFactory);
 var
-  aClassname: string;
+  cc: TClassContainer;
 begin
   //writeln('-->RegisterJSONClass(', aClass.ClassName, ')');
   try
     EnterCriticalsection(ClassCS);
-    while ClassList.IndexOf(AClass) = -1 do
+    while ClassList.IndexOfClass(AClass) = -1 do
     begin
-      aClassname := AClass.ClassName;
-      if GetJSONClass(aClassName) <> nil then  //class alread registered!
+      if ClassList.IndexOfClass(AClass) > -1 then  //class alread registered!
       begin
         exit;
       end;
-      ClassList.Add(AClass);
+      cc := TClassContainer.Create;
+      cc.theClass := aClass;
+      cc.theFactory := aFactory;
+      ClassList.Add(cc);
       AClass := AClass.ClassParent;
       if (aClass = nil) or (aClass = TObject) then
         break;
@@ -185,25 +223,39 @@ begin
 end;
 
 function GetJSONClass(const AClassName: string): TClass;
-var
-  I: integer;
-  currentName: string;
 begin
   //writeln('-->GetJSONClass(', AClassName, ')');
   try
     EnterCriticalsection(ClassCS);
-    for I := ClassList.Count - 1 downto 0 do
-    begin
-      Result := ClassList.Items[I];
-      currentName := Result.ClassName;
-      if CompareText(AClassName, currentName) = 0 then
-        Exit;
-    end;
-    Result := nil;
+    result := classList.getClass(AClassName);
   finally
     LeaveCriticalsection(ClassCS);
   end;
   //writeln('<--GetJSONClass(', AClassName, ')');
+end;
+
+function GetJSONFactory(const AClassName: string): TFactory;
+begin
+  //writeln('-->GetJSONFactory(', AClassName, ')');
+  try
+    EnterCriticalsection(ClassCS);
+    result := classList.getFactory(AClassName);
+  finally
+    LeaveCriticalsection(ClassCS);
+  end;
+  //writeln('<--GetJSONFactory(', AClassName, ')');
+end;
+
+function GetJSONFactory(const AClass: TClass): TFactory;
+begin
+  //writeln('-->GetJSONFactory(', AClassName, ')');
+  try
+    EnterCriticalsection(ClassCS);
+    result := classList.getFactory(AClass.ClassName);
+  finally
+    LeaveCriticalsection(ClassCS);
+  end;
+  //writeln('<--GetJSONFactory(', AClassName, ')');
 end;
 
 function camelCase(const aString: string): string;
@@ -239,6 +291,74 @@ begin
   end;
 end;
 
+{ TClassListHelper }
+
+function TClassListHelper.indexOfClass(aClass: TClass): int64;
+var
+  cc: TClassContainer;
+begin
+  result := -1;
+  for cc in self do
+  begin
+    if cc.theClass = aClass then
+    begin
+      exit(IndexOf(cc));
+    end;
+  end;
+end;
+
+function TClassListHelper.indexOfClassName(aClassName: shortString): int64;
+var
+  cc: TClassContainer;
+begin
+  result := -1;
+  for cc in self do
+  begin
+    if compareText(cc.theClass.ClassName, aClassName) = 0 then
+    begin
+      exit(IndexOf(cc));
+    end;
+  end;
+end;
+
+function TClassListHelper.getClass(aClassName: shortString): TClass;
+var
+  idx: int64;
+begin
+  result := nil;
+  idx := IndexOfClassName(aClassName);
+  if idx > -1 then
+    exit(Items[idx].theClass);
+end;
+
+function TClassListHelper.getFactory(aClassName: shortString): TFactory;
+var
+  idx: int64;
+begin
+  idx := IndexOfClassName(aClassName);
+  if idx > -1 then
+    result := (Items[idx].theFactory);
+  if result = nil then
+    result := @GenericCreateCall;
+end;
+
+
+{ TClassContainer }
+
+procedure TClassContainer.SettheClass(AValue: TClass);
+begin
+  if FtheClass = AValue then
+    Exit;
+  FtheClass := AValue;
+end;
+
+procedure TClassContainer.SettheFactory(AValue: TFactory);
+begin
+  if FtheFactory = AValue then
+    Exit;
+  FtheFactory := AValue;
+end;
+
 { TJSONCollectionTypeHandle }
 
 procedure TJSONCollectionTypeHandle.parseCollection(ACollection: TCollection; arrayNode: TJSONArray);
@@ -251,7 +371,6 @@ var
 begin
   getHandlers(tkClass, handlers);
   try
-  //Writeln(ACollection.ItemClass.ClassName);
     for idx := 0 to arrayNode.Count - 1 do
     begin
       childNode := arrayNode[idx];
@@ -332,13 +451,13 @@ var
   aCollection: TCollection;
 begin
   result := False;
-  if (AObject is TCollection) then
+  if (Info = nil) and (AObject is TCollection) then
   begin
     parseCollection(AObject as TCollection, node as TJSONArray);
     result := True;
   end
   else
-  if (Info <> nil) and (Info^.PropType^.Kind in [tkClass, tkObject]) then
+  if (Info <> nil) and (AObject is TCollection) and (Info^.PropType^.Kind in [tkClass, tkObject]) then
   begin
     clz := GetJSONClass(Info^.PropType^.Name);
     if clz.InheritsFrom(TCollection) then
@@ -701,6 +820,7 @@ var
   clz: TClass;
   pname: string;
   childNode: TJSONData;
+  factory: TFactory;
 begin
   result := False;
   if node = nil then
@@ -753,8 +873,9 @@ begin
     if anObject = nil then
     begin
       clz := GetJSONClass(info^.PropType^.Name);
+      factory := GetJSONFactory(info^.PropType^.Name);
       if clz <> nil then
-        anObject := clz.Create;
+        anObject := factory(clz);
     end;
     if anObject <> nil then
     begin
@@ -825,14 +946,17 @@ end;
 function TJSON3.parse(source: TJSONStringType; clz: TClass): TObject;
 var
   jsonData: TJSONData;
+  factory: TFactory;
   handlers: THandlerList;
   h: TJsonTypeHandler;
 begin
   jsonData := GetJSON(source, True);
   try
-  //Writeln(PVmt(clz)^.vInstanceSize);
-    result := clz.newinstance;
-    result.create;
+    factory := GetJSONFactory(clz.ClassName);
+    result := factory(clz);
+    if (result = nil) then
+      raise EFactoryFailure.Create(clz.ClassName);
+
     getHandlers(tkObject, handlers);
     for h in handlers do
     begin
@@ -881,7 +1005,7 @@ begin
         jsonData.Free;
     except
       on e: Exception do
-      //Writeln(e.message);
+        //Writeln(e.message);
     end;
   end;
 end;
@@ -904,6 +1028,7 @@ initialization
   RegisterJsonTypeHandler(tkEnumeration, TJSONEnumerationTypeHandle.Create);
   RegisterJsonTypeHandler(tkClass, TJSONCollectionTypeHandle.Create);
   RegisterJsonTypeHandler(tkObject, TJSONCollectionTypeHandle.Create);
+
 
 finalization;
   ClassList.Free;

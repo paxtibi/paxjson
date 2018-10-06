@@ -16,8 +16,9 @@ This function translates an object into its string representation.
 ### procedure RegisterJsonTypeHandler(typeKind: TTypeKind; anHandler: TJsonTypeHandler);
 Register a new type handler.
 
-### procedure RegisterJSONClass(aClass: TClass);
+procedure RegisterJSONClass(aClass: TClass; aFactory: TFactory = nil);
 Register a class for the parser method
+The factory function provides a help to create instance for particular class, such as Collection and Generic container (eg TFPGObjectList subclasses)
 
 ### function GetJSONClass(const AClassName: string): TClass;
 Find a class by name in the registry.
