@@ -30,7 +30,7 @@
         <PackageName Value="paxjson_package"/>
       </Item1>
     </RequiredPackages>
-    <Units Count="4">
+    <Units Count="3">
       <Unit0>
         <Filename Value="jsonDemo.lpr"/>
         <IsPartOfProject Value="True"/>
@@ -40,14 +40,10 @@
         <IsPartOfProject Value="True"/>
       </Unit1>
       <Unit2>
-        <Filename Value="..\..\src\paxjsgl.pas"/>
-        <IsPartOfProject Value="True"/>
-      </Unit2>
-      <Unit3>
         <Filename Value="..\src\demoapp.pas"/>
         <IsPartOfProject Value="True"/>
         <UnitName Value="demoApp"/>
-      </Unit3>
+      </Unit2>
     </Units>
   </ProjectOptions>
   <CompilerOptions>
@@ -58,7 +54,7 @@
     </Target>
     <SearchPaths>
       <IncludeFiles Value="$(ProjOutDir)"/>
-      <OtherUnitFiles Value="..\src;..\src\server;..\src\lib;..\..\src"/>
+      <OtherUnitFiles Value="..\src"/>
       <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)"/>
     </SearchPaths>
     <Linking>

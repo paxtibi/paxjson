@@ -11,6 +11,7 @@ type
   { TJSONDemo }
 
   TJSONDemo = class(TCustomApplication)
+  private
   protected
     procedure DoListParse;
     procedure DoListStringify;
@@ -20,6 +21,11 @@ type
     procedure DoComplexObjectParse;
     procedure DoSimpleObjectStringify;
     procedure DoSimpleObjectParse;
+
+    procedure DoSimpleObjectListContainerStringify;
+    procedure DoSimpleObjectListContainerParse;
+
+
     procedure DoCaseFunctions;
     procedure DoRun; override;
   public
@@ -68,7 +74,6 @@ var
   list: TMinimalObjectList;
 begin
   list := JSON.parse(GenericListJSONString, TMinimalObjectList) as TMinimalObjectList;
-  Writeln('DoListParse ': 50, JSON.stringify(list));
   list.Free;
 end;
 
@@ -83,7 +88,6 @@ begin
   list[0].aProperty := 100;
   list[1].aProperty := 200;
   list[2].aProperty := 300;
-  Writeln('DoListStringify ': 50, JSON.stringify(list));
   list.Free;
 end;
 
@@ -97,7 +101,6 @@ begin
   begin
     TACollectionItem(col.Add).aProperty := idx + 10;
   end;
-  Writeln('DoCollectionStringify ': 50, JSON.stringify(col));
   col.Free;
 end;
 
@@ -106,7 +109,6 @@ var
   col: TACollection;
 begin
   col := JSON.parse(CollectionJSONString, TACollection) as TACollection;
-  Writeln('DoCollectionParse ': 50, JSON.stringify(col));
   if col <> nil then
     col.Free;
 end;
@@ -115,12 +117,21 @@ procedure TJSONDemo.DoComplexObjectStringify;
 var
   co: TComplexObject = nil;
   simpleObject: TSimpleObject;
+  result: string;
 begin
   co := TComplexObject.Create;
   simpleObject := JSON.parse(SimpleObjectJSONString, TSimpleObject) as TSimpleObject;
   co.SimpleObject := simpleObject;
   co.EnumProperty := enum2;
-  Writeln('DoComplexObjectStringify ': 50, JSON.stringify(co));
+  co.MinimalObjectList := TMinimalObjectList.Create(True);
+  co.MinimalObjectList.Add(TMinimalObject.Create);
+  co.MinimalObjectList.Add(TMinimalObject.Create);
+  co.MinimalObjectList.Add(TMinimalObject.Create);
+  co.MinimalObjectList[0].aProperty := 0;
+  co.MinimalObjectList[1].aProperty := 1;
+  co.MinimalObjectList[2].aProperty := 2;
+  result := JSON.stringify(co);
+  Writeln(result);
   co.Free;
 end;
 
@@ -129,7 +140,6 @@ var
   co: TComplexObject = nil;
 begin
   co := JSON.parse(ComplexObjectJSONString, TComplexObject) as TComplexObject;
-  Writeln('DoComplexObjectParse ': 50, JSON.stringify(co));
   co.Free;
 end;
 
@@ -151,7 +161,6 @@ begin
   so.PropertyString := '3';
   so.returnCodes := sa;
   so.returnValues := ia;
-  writeln('DoSimpleObjectStringify ': 50, JSON.stringify(so));
   so.Free;
 end;
 
@@ -160,8 +169,30 @@ var
   so: TSimpleObject = nil;
 begin
   so := JSON.parse(SimpleObjectJSONString, TSimpleObject) as TSimpleObject;
-  writeln('DoSimpleObjectParse ': 50, JSON.stringify(so));
   so.Free;
+end;
+
+procedure TJSONDemo.DoSimpleObjectListContainerStringify;
+var
+  simpleObject: TSimpleObjectListContainer = nil;
+  result: string;
+begin
+  simpleObject := TSimpleObjectListContainer.Create;
+  simpleObject.List := TMinimalObjectList.Create(True);
+  simpleObject.List.Add(TMinimalObject.Create);
+  simpleObject.List.Add(TMinimalObject.Create);
+  simpleObject.List.Add(TMinimalObject.Create);
+  simpleObject.List[0].aProperty := 0;
+  simpleObject.List[1].aProperty := 1;
+  simpleObject.List[2].aProperty := 2;
+  result := JSON.stringify(simpleObject);
+  Writeln(result);
+  simpleObject.Free;
+end;
+
+procedure TJSONDemo.DoSimpleObjectListContainerParse;
+begin
+
 end;
 
 procedure TJSONDemo.DoCaseFunctions;
@@ -176,19 +207,24 @@ begin
   RegisterJSONClass(TSimpleObject);
   RegisterJSONClass(TMinimalObject);
   RegisterJSONClass(TComplexObject);
+  RegisterJSONClass(TSimpleObjectListContainer);
   RegisterJSONClass(TACollection, @ACollectionFactory);
   RegisterJSONClass(TMinimalObjectList, @MinimalObjectListFactory);
   RegisterJsonTypeHandler(tkClass, TMinimalObjectListTypeHandle.Create);
   RegisterJsonTypeHandler(tkObject, TMinimalObjectListTypeHandle.Create);
+
   DoCaseFunctions;
   DoSimpleObjectStringify;
   DoSimpleObjectParse;
-  DoComplexObjectStringify;
-  DoComplexObjectParse;
   DoCollectionStringify;
   DoCollectionParse;
   DoListStringify;
   DoListParse;
+
+  DoSimpleObjectListContainerStringify;
+
+  DoComplexObjectStringify;
+  DoComplexObjectParse;
   Terminate(0);
 end;
 

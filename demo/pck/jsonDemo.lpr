@@ -9,8 +9,7 @@ uses {$IFDEF UNIX} {$IFDEF UseCThreads}
   omtest,
   paxjs,
   CustApp,
-  paxjsgl,
-  demoApp { you can add units after this };
+  demoApp;
 
 var
   Application: TJSONDemo;

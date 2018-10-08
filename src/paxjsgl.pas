@@ -18,8 +18,10 @@ type
      TCastContainedType = aItemType;
   protected
     procedure parseType(aObject: aType; arrayNode: TJSONArray);
-    procedure stringifyType(AObject: TCastContainerType; var Res: TJSONData);
+    procedure stringifyType(AObject: TCastContainerType; out Res: TJSONData);
   public
+    constructor Create;
+    destructor Destroy; override;
     function parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean; override;
     function stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean; override;
   end;
@@ -56,8 +58,8 @@ begin
   handlers.Free;
 end;
 
-procedure TGenericListTypeHandle.stringifyType(AObject: TCastContainerType;
-  var Res: TJSONData);
+procedure TGenericListTypeHandle.stringifyType(AObject: TCastContainerType; out
+  Res: TJSONData);
 var
   idx: integer;
   item: TObject;
@@ -81,9 +83,17 @@ begin
   handlers.Free;
 end;
 
+constructor TGenericListTypeHandle.Create;
+begin
+end;
+
+destructor TGenericListTypeHandle.Destroy;
+begin
+  inherited Destroy;
+end;
+
 function TGenericListTypeHandle.parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean;
 var
-  clz: TClass;
   aList: aType;
 begin
   result := False;
@@ -95,40 +105,31 @@ begin
   else
   if (Info <> nil) and (compareText(AObject.ClassName,TCastContainerType.className)=0) and (Info^.PropType^.Kind in [tkClass, tkObject]) then
   begin
-    clz := GetJSONClass(Info^.PropType^.Name);
-    if clz.InheritsFrom(TCollection) then
-    begin
-      aList := TCastContainerType(GetObjectProp(AObject, Info));
-      parseType(aList, node as TJSONArray);
-      result := True;
-    end;
+    aList := TCastContainerType(GetObjectProp(AObject, Info));
+    parseType(aList, node as TJSONArray);
+    result := True;
   end;
 end;
 
 function TGenericListTypeHandle.stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean;
 var
-  clz: TClass;
   aList: aType;
 begin
   result := False;
   if (CompareText(AObject.ClassName, TCastContainerType.ClassName)=0) then
   begin
-  if (Info = nil) then
-  begin
-    stringifyType(TCastContainerType(AObject), res);
-    result := True;
-  end
-  else
-  if (Info <> nil) then
-  begin
-    clz := GetJSONClass(Info^.PropType^.Name);
-    if clz.InheritsFrom(TCollection) then
+    if (Info = nil) then
+    begin
+      stringifyType(TCastContainerType(AObject), res);
+      result := True;
+    end
+    else
+    if (Info <> nil) then
     begin
       aList := TCastContainerType(GetObjectProp(AObject, Info));
       stringifyType(aList, Res);
       result := True;
     end;
-  end;
   end;
 end;
 

@@ -51,14 +51,26 @@ type
 
   TMinimalObjectList = specialize TFPGObjectList<TMinimalObject>;
 
+  { TSimpleObjectListContainer }
+
+  TSimpleObjectListContainer = class
+  private
+    FList: TMinimalObjectList;
+    procedure SetList(AValue: TMinimalObjectList);
+  published
+    property List: TMinimalObjectList read FList write SetList;
+  end;
+
   TEnumProperty = (enum1, enum2);
 
   { TComplexObject }
 
   TComplexObject = class(TObject)
   private
+    FMinimalObjectList: TMinimalObjectList;
     FSimpleObject: TSimpleObject;
     FEnumProperty: TEnumProperty;
+    procedure SetMinimalObjectList(AValue: TMinimalObjectList);
     procedure SetSimpleObject(AValue: TSimpleObject);
     procedure SetEnumProperty(AValue: TEnumProperty);
   public
@@ -66,6 +78,7 @@ type
   published
     property SimpleObject: TSimpleObject read FSimpleObject write SetSimpleObject;
     property EnumProperty: TEnumProperty read FEnumProperty write SetEnumProperty;
+    property MinimalObjectList: TMinimalObjectList read FMinimalObjectList write SetMinimalObjectList;
   end;
 
   { TACollectionItem }
@@ -94,6 +107,15 @@ implementation
 
 uses
   paxjs, typinfo;
+
+{ TSimpleObjectListContainer }
+
+procedure TSimpleObjectListContainer.SetList(AValue: TMinimalObjectList);
+begin
+  if FList = AValue then
+    Exit;
+  FList := AValue;
+end;
 
 { TMinimalObject }
 
@@ -146,6 +168,13 @@ begin
   if FSimpleObject = AValue then
     Exit;
   FSimpleObject := AValue;
+end;
+
+procedure TComplexObject.SetMinimalObjectList(AValue: TMinimalObjectList);
+begin
+  if FMinimalObjectList = AValue then
+    Exit;
+  FMinimalObjectList := AValue;
 end;
 
 procedure TComplexObject.SetEnumProperty(AValue: TEnumProperty);

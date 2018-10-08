@@ -199,7 +199,7 @@ procedure RegisterJSONClass(aClass: TClass; aFactory: TFactory);
 var
   cc: TClassContainer;
 begin
-  //writeln('-->RegisterJSONClass(', aClass.ClassName, ')');
+  //('-->RegisterJSONClass(', aClass.ClassName, ')');
   try
     EnterCriticalsection(ClassCS);
     while ClassList.IndexOfClass(AClass) = -1 do
@@ -780,6 +780,7 @@ var
   Size: integer;
   childNode: TJSONData;
 begin
+  //Writeln('-->TJSONObjectTypeHandler.stringifyPropertyList');
   result := True;
   Count := GetPropList(AObject.ClassInfo, tkAny, nil);
   Size := Count * SizeOf(Pointer);
@@ -789,6 +790,7 @@ begin
     for idx := 0 to Count - 1 do
     begin
       try
+        //writeln('-- ', PList^[idx]^.Name, '');
         getHandlers(PList^[idx]^.PropType^.Kind, handlers);
         for h in handlers do
         begin
@@ -805,7 +807,7 @@ begin
   finally
     FreeMem(PList);
   end;
-
+  //Writeln('<--TJSONObjectTypeHandler.stringifyPropertyList(', AObject.ClassName, ')');
 end;
 
 function TJSONObjectTypeHandler.parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean;
@@ -879,9 +881,15 @@ begin
     end;
     if anObject <> nil then
     begin
-      parse(anObject, nil, node);
-      SetObjectProp(aObject, info, anObject);
-      result := True;
+      getHandlers(info^.PropType^.Kind, handlers);
+      for h in handlers do
+        if h.parse(anObject, nil, node) then
+        begin
+          Result := True;
+          SetObjectProp(aObject, info, anObject);
+          break;
+        end;
+      handlers.Free;
     end;
   end;
 end;
@@ -890,6 +898,8 @@ function TJSONObjectTypeHandler.stringify(AObject: TObject; Info: PPropInfo; out
 var
   propObject: TObject;
   childNode: TJSONData;
+  handlers: THandlerList;
+  h: TJSONTypeHandler;
 begin
   result := False;
   if AObject = nil then
@@ -900,6 +910,7 @@ begin
   else
   if info = nil then
   begin
+    //Writeln(AObject.ClassName);
     Res := TJSONObject.Create;
     stringifyPropertyList(AObject, Res);
     result := True;
@@ -909,7 +920,13 @@ begin
     propObject := GetObjectProp(AObject, Info^.Name);
     if propObject <> nil then
     begin
-      stringify(propObject, nil, childNode);
+      getHandlers(Info^.PropType^.Kind, handlers);
+      for h in handlers do
+      begin
+        if h.stringify(propObject, nil, childNode) then
+          break;
+      end;
+      handlers.Free;
       res := childNode;
     end
     else
