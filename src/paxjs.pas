@@ -15,7 +15,7 @@ type
   { TJSON }
   TJSON3 = class
     function parse(source: TJSONStringType; clz: TClass): TObject; overload;
-    function stringify(const obj: TObject): TJSONStringType;
+    function stringify(const obj: TObject; FormatOptions: TFormatOptions = AsCompressedJSON): TJSONStringType;
   end;
 
   TJsonTypeHandler = class
@@ -988,7 +988,7 @@ begin
   end;
 end;
 
-function TJSON3.stringify(const obj: TObject): TJSONStringType;
+function TJSON3.stringify(const obj: TObject; FormatOptions: TFormatOptions): TJSONStringType;
 var
   jsonData: TJSONData = nil;
   handlers: THandlerList;
@@ -1013,7 +1013,7 @@ begin
       handlers.Free;
     end;
     if jsonData <> nil then
-      result := jsonData.FormatJSON(AsCompressedJSON)
+      result := jsonData.FormatJSON(FormatOptions)
     else
       result := 'null';
   finally
