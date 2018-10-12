@@ -26,6 +26,8 @@ type
     function stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean; override;
   end;
 
+
+
 implementation
 
 { TGenericListTypeHandle }

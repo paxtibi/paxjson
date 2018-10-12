@@ -18,6 +18,8 @@ type
     function stringify(const obj: TObject; FormatOptions: TFormatOptions = AsCompressedJSON): TJSONStringType;
   end;
 
+  { TJsonTypeHandler }
+
   TJsonTypeHandler = class
   public
     function parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean; virtual; abstract;
@@ -785,7 +787,7 @@ begin
   Count := GetPropList(AObject.ClassInfo, tkAny, nil);
   Size := Count * SizeOf(Pointer);
   GetMem(PList, Size);
-  GetPropList(AObject.ClassInfo, tkAny, PList);
+  GetPropList(AObject.ClassInfo, tkAny, PList, False);
   try
     for idx := 0 to Count - 1 do
     begin
