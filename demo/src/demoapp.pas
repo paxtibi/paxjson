@@ -25,6 +25,8 @@ type
     procedure DoSimpleObjectListContainerStringify;
     procedure DoSimpleObjectListContainerParse;
 
+    procedure DoStringListStringify;
+    procedure DoStringListParse;
 
     procedure DoCaseFunctions;
     procedure DoRun; override;
@@ -41,7 +43,7 @@ uses
 
 const
   SimpleObjectJSONString = '{propertyFloat: 1.0,PropertyInteger:2,PropertyString:"3",lastUpdate:"2018-01-01T00:00:00",returnCodes:["4","5"],returnValues:[6,7]}';
-  ComplexObjectJSONString = '{"EnumProperty":"enum2","SimpleObject":' + SimpleObjectJSONString + '}';
+  ComplexObjectJSONString = '{"Strings":"Line1\r\nLine2\r\nLine3","EnumProperty":"enum2","SimpleObject":' + SimpleObjectJSONString + '}';
   CollectionJSONString = '[{"aProperty":10},{"aProperty":11},{"aProperty":12},{"aProperty":13},{"aProperty":14}]';
   GenericListJSONString = '[{"aProperty":1},{"aProperty":2},{"aProperty":3},{"aProperty":4},{"aProperty":50}]';
 
@@ -130,7 +132,10 @@ begin
   co.MinimalObjectList[0].aProperty := 0;
   co.MinimalObjectList[1].aProperty := 1;
   co.MinimalObjectList[2].aProperty := 2;
-  result := JSON.stringify(co);
+  co.Strings := TStringList.Create;
+  co.Strings.Add('Line1');
+  co.Strings.Add('Line2');
+  result := JSON.stringify(co, []);
   Writeln(result);
   co.Free;
 end;
@@ -140,6 +145,7 @@ var
   co: TComplexObject = nil;
 begin
   co := JSON.parse(ComplexObjectJSONString, TComplexObject) as TComplexObject;
+  Writeln(JSON.stringify(co, []));
   co.Free;
 end;
 
@@ -195,6 +201,27 @@ begin
 
 end;
 
+procedure TJSONDemo.DoStringListStringify;
+var
+  sl: TStringList;
+begin
+  sl := TStringList.Create;
+  sl.Add('Line1');
+  sl.Add('Line2');
+  sl.Add('Line3');
+  Writeln(JSON.stringify(sl, []));
+  freeAndNil(sl);
+end;
+
+procedure TJSONDemo.DoStringListParse;
+var
+  sl: TStringList;
+begin
+  sl := JSON.parse('"Line1\r\nLine2\r\nLine3\r\n"', TStringList) as TStringList;
+  Writeln(sl.Text);
+  FreeAndNil(sl);
+end;
+
 procedure TJSONDemo.DoCaseFunctions;
 begin
   Writeln(selectorCase('thisIsATry'));
@@ -220,6 +247,8 @@ begin
   DoCollectionParse;
   DoListStringify;
   DoListParse;
+  DoStringListStringify;
+  DoStringListParse;
 
   DoSimpleObjectListContainerStringify;
 

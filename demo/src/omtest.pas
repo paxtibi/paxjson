@@ -70,15 +70,20 @@ type
     FMinimalObjectList: TMinimalObjectList;
     FSimpleObject: TSimpleObject;
     FEnumProperty: TEnumProperty;
+    FStrings: TStringList;
     procedure SetMinimalObjectList(AValue: TMinimalObjectList);
     procedure SetSimpleObject(AValue: TSimpleObject);
     procedure SetEnumProperty(AValue: TEnumProperty);
+    procedure SetStrings(AValue: TStringList);
   public
     function ToString: ansistring; override;
+    constructor Create;
+    destructor Destroy; override;
   published
     property SimpleObject: TSimpleObject read FSimpleObject write SetSimpleObject;
     property EnumProperty: TEnumProperty read FEnumProperty write SetEnumProperty;
     property MinimalObjectList: TMinimalObjectList read FMinimalObjectList write SetMinimalObjectList;
+    property Strings: TStringList read FStrings write SetStrings;
   end;
 
   { TACollectionItem }
@@ -86,13 +91,11 @@ type
   TACollectionItem = class(TCollectionItem)
   private
     FaProperty: integer;
-    FAPropery: integer;
     procedure SetAProperty(AValue: integer);
-    procedure SetAPropery(AValue: integer);
   public
     constructor Create(ACollection: TCollection); override;
   published
-    property aProperty: integer read FAPropery write SetAPropery;
+    property aProperty: integer read FaProperty write SetAProperty;
   end;
 
   { TACollection }
@@ -130,22 +133,15 @@ end;
 
 procedure TACollectionItem.SetAProperty(AValue: integer);
 begin
-  if FAPropery = AValue then
+  if FaProperty = AValue then
     Exit;
-  FAPropery := AValue;
-end;
-
-procedure TACollectionItem.SetAPropery(AValue: integer);
-begin
-  if FAPropery = AValue then
-    Exit;
-  FAPropery := AValue;
+  FaProperty := AValue;
 end;
 
 constructor TACollectionItem.Create(ACollection: TCollection);
 begin
   inherited Create(ACollection);
-  FAPropery := ID;
+  FaProperty := ID;
 end;
 
 { TACollection }
@@ -184,10 +180,27 @@ begin
   FEnumProperty := AValue;
 end;
 
+procedure TComplexObject.SetStrings(AValue: TStringList);
+begin
+  if FStrings = AValue then
+    Exit;
+  FStrings := AValue;
+end;
 
 function TComplexObject.ToString: ansistring;
 begin
   result := JSON.stringify(Self);
+end;
+
+constructor TComplexObject.Create;
+begin
+  FStrings := nil;
+end;
+
+destructor TComplexObject.Destroy;
+begin
+  FreeAndNil(FStrings);
+  inherited Destroy;
 end;
 
 { TSimpleObject }

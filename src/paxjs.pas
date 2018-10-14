@@ -71,6 +71,13 @@ type
     function stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean; override;
   end;
 
+  { TJSONStringListTypeHandle }
+
+  TJSONStringListTypeHandle = class(TJsonTypeHandler)
+    function parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean; override;
+    function stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean; override;
+  end;
+
   { TJSONDynArrayIntegerTypeHandle }
 
   TJSONDynArrayIntegerTypeHandle = class(TJsonTypeHandler)
@@ -290,6 +297,61 @@ begin
     holder := Registry[idx];
     if holder.FKind = typeKind then
       handlers.add(holder.Handler);
+  end;
+end;
+
+{ TJSONStringListTypeHandle }
+
+function TJSONStringListTypeHandle.parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean;
+var
+  target: TObject;
+begin
+  result := False;
+  if node = nil then
+    exit;
+  if (Info <> nil) then
+  begin
+    if (Info^.PropType^.Kind = tkClass) and (UpperCase(Info^.PropType^.Name) = UpperCase('TStringList')) then
+    begin
+      target := GetObjectProp(AObject, Info);
+      if target = nil then
+        target := TStringList.Create;
+
+      TStringList(target).Text := node.AsString;
+      SetObjectProp(AObject, Info, target);
+      result := True;
+    end;
+  end
+  else
+  begin
+    if AObject is TStringList then
+    begin
+      TStringList(AObject).Text := node.AsString;
+    end;
+  end;
+end;
+
+function TJSONStringListTypeHandle.stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean;
+var
+  target: TObject;
+begin
+  result := False;
+  if Info <> nil then
+  begin
+    if (Info^.PropType^.Kind = tkClass) and (UpperCase(Info^.PropType^.Name) = UpperCase('TStringList')) then
+    begin
+      target := GetObjectProp(AObject, Info);
+      res := TJSONString.Create(TStringList(target).Text);
+      result := True;
+    end;
+  end
+  else
+  begin
+    if AObject is TStringList then
+    begin
+      res := TJSONString.Create(TStringList(AObject).Text);
+      result := True;
+    end;
   end;
 end;
 
@@ -1029,11 +1091,13 @@ begin
   end;
 end;
 
+
 initialization
   InitCriticalSection(ClassCS);
   JSON := TJSON3.Create;
   Registry := TJSONTypeRegistry.Create();
   ClassList := TClassList.Create;
+  RegisterJSONClass(TStringList);
   RegisterJsonTypeHandler(tkObject, TJSONObjectTypeHandler.Create);
   RegisterJsonTypeHandler(tkClass, TJSONObjectTypeHandler.Create);
   RegisterJsonTypeHandler(tkInt64, TJSONIntegerTypeHandle.Create);
@@ -1047,6 +1111,8 @@ initialization
   RegisterJsonTypeHandler(tkEnumeration, TJSONEnumerationTypeHandle.Create);
   RegisterJsonTypeHandler(tkClass, TJSONCollectionTypeHandle.Create);
   RegisterJsonTypeHandler(tkObject, TJSONCollectionTypeHandle.Create);
+  RegisterJsonTypeHandler(tkClass, TJSONStringListTypeHandle.Create);
+  RegisterJsonTypeHandler(tkObject, TJSONStringListTypeHandle.Create);
 
 
 finalization;
