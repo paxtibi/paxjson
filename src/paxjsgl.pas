@@ -60,8 +60,7 @@ begin
   handlers.Free;
 end;
 
-procedure TGenericListTypeHandle.stringifyType(AObject: TCastContainerType; out
-  Res: TJSONData);
+procedure TGenericListTypeHandle.stringifyType(AObject: TCastContainerType; out  Res: TJSONData);
 var
   idx: integer;
   item: TObject;
@@ -69,6 +68,10 @@ var
   handlers: THandlerList;
   h: TJSONTypeHandler;
 begin
+  if AObject = nil then
+  begin
+    res := CreateJSON;
+  end else begin
   Res := TJSONArray.Create;
   getHandlers(tkClass, handlers);
   for idx := 0 to TFPSList(aObject).count - 1 do
@@ -83,6 +86,7 @@ begin
       TJSONArray(res).Add(childNode);
   end;
   handlers.Free;
+  end;
 end;
 
 constructor TGenericListTypeHandle.Create;

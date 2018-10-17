@@ -165,6 +165,12 @@ type
   TJSONTypeRegistry = specialize TFPGObjectList<TJSONTypeHandlerHolder>;
 
 
+  { TJSONObjectHelper }
+
+  TJSONObjectHelper = class helper for TJSONObject
+    function hasProperty(name: string): boolean;
+  end;
+
   { TClassContainer }
 
   TClassContainer = class
@@ -298,6 +304,11 @@ begin
     if holder.FKind = typeKind then
       handlers.add(holder.Handler);
   end;
+end;
+
+function TJSONObjectHelper.hasProperty(name: string): boolean;
+begin
+  result := IndexOfName(name) >= 0;
 end;
 
 { TJSONStringListTypeHandle }
