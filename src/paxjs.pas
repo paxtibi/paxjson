@@ -7,14 +7,14 @@ interface
 uses
   Classes, SysUtils, typinfo, fpjson, fgl;
 
-//
+
 //Date Format: http://es5.github.io/#x15.9.1.15
-//
+
 type
   TDynIntegerArray = array of integer;
   { TJSON }
   TJSON3 = class
-    function parse(source: TJSONStringType; clz: TClass): TObject; overload;
+    function parse(Source: TJSONStringType; clz: TClass): TObject; overload;
     function stringify(const obj: TObject; FormatOptions: TFormatOptions = AsCompressedJSON): TJSONStringType;
   end;
 
@@ -39,6 +39,13 @@ type
   { TJSONIntegerTypeHandle }
 
   TJSONIntegerTypeHandle = class(TJsonTypeHandler)
+    function parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean; override;
+    function stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean; override;
+  end;
+
+  { TJSONBooleanTypeHandle }
+
+  TJSONBooleanTypeHandle = class(TJsonTypeHandler)
     function parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean; override;
     function stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean; override;
   end;
@@ -123,12 +130,13 @@ function camelCase(const aString: string): string;
 function pascalCase(const aString: string): string;
 function selectorCase(const aString: string): string;
 procedure getHandlers(typeKind: TTypeKind; out handlers: THandlerList);
+procedure getHandlers(typeKind: TTypeKinds; out handlers: THandlerList);
 
 
 implementation
 
 uses
-  jsonparser, RegExpr;
+  jsonparser, RegExpr, math;
 
 // from fpIndexer
 function DateToISO8601(DateTime: TDateTime): string;
@@ -143,7 +151,9 @@ end;
 
 function GenericCreateCall(clz: TClass): TObject;
 begin
-  result := clz.Create;
+  //if isConsole then
+  //  Writeln(clz.ClassName);
+  Result := clz.Create;
 end;
 
 type
@@ -168,7 +178,7 @@ type
   { TJSONObjectHelper }
 
   TJSONObjectHelper = class helper for TJSONObject
-    function hasProperty(name: string): boolean;
+    function hasProperty(Name: string): boolean;
   end;
 
   { TClassContainer }
@@ -196,9 +206,9 @@ type
   end;
 
 var
-  Registry: TJSONTypeRegistry;
+  Registry:  TJSONTypeRegistry;
   ClassList: TClassList;
-  ClassCS: TRTLCriticalSection;
+  ClassCS:   TRTLCriticalSection;
 
 procedure RegisterJsonTypeHandler(aTypeKind: TTypeKind; aHandler: TJsonTypeHandler);
 var
@@ -214,7 +224,8 @@ procedure RegisterJSONClass(aClass: TClass; aFactory: TFactory);
 var
   cc: TClassContainer;
 begin
-  //('-->RegisterJSONClass(', aClass.ClassName, ')');
+  //if IsConsole then
+  //  Writeln('-->RegisterJSONClass(', aClass.ClassName, ')');
   try
     EnterCriticalsection(ClassCS);
     while ClassList.IndexOfClass(AClass) = -1 do
@@ -234,68 +245,75 @@ begin
   finally
     LeaveCriticalsection(ClassCS);
   end;
-  //writeln('<--RegisterJSONClass(', aClass.ClassName, ')');
+  //if isConsole then
+  //  Writeln('<--RegisterJSONClass(', aClass.ClassName, ')');
 end;
 
 function GetJSONClass(const AClassName: string): TClass;
 begin
-  //writeln('-->GetJSONClass(', AClassName, ')');
+  //if isConsole then
+  //  Writeln('-->GetJSONClass(', AClassName, ')');
   try
     EnterCriticalsection(ClassCS);
-    result := classList.getClass(AClassName);
+    Result := classList.getClass(AClassName);
   finally
     LeaveCriticalsection(ClassCS);
   end;
-  //writeln('<--GetJSONClass(', AClassName, ')');
+  //if isConsole then
+  //  Writeln('<--GetJSONClass(', AClassName, ')');
 end;
 
 function GetJSONFactory(const AClassName: string): TFactory;
 begin
-  //writeln('-->GetJSONFactory(', AClassName, ')');
+  //if isConsole then
+  //  Writeln('-->GetJSONFactory(', AClassName, ')');
   try
     EnterCriticalsection(ClassCS);
-    result := classList.getFactory(AClassName);
+    Result := classList.getFactory(AClassName);
   finally
     LeaveCriticalsection(ClassCS);
   end;
-  //writeln('<--GetJSONFactory(', AClassName, ')');
+  //if isConsole then
+  //  Writeln('<--GetJSONFactory(', AClassName, ')');
 end;
 
 function GetJSONFactory(const AClass: TClass): TFactory;
 begin
-  //writeln('-->GetJSONFactory(', AClassName, ')');
+  //if isConsole then
+  //  Writeln('-->GetJSONFactory(', AClass.ClassName, ')');
   try
     EnterCriticalsection(ClassCS);
-    result := classList.getFactory(AClass.ClassName);
+    Result := classList.getFactory(AClass.ClassName);
   finally
     LeaveCriticalsection(ClassCS);
   end;
-  //writeln('<--GetJSONFactory(', AClassName, ')');
+  //if isConsole then
+  //  Writeln('<--GetJSONFactory(', AClass.ClassName, ')');
 end;
 
 function camelCase(const aString: string): string;
 begin
-  result := ReplaceRegExpr('([A-Z])', aString, '\U$1', True);
-  result[1] := lowerCase(Result[1]);
+  Result := ReplaceRegExpr('([A-Z])', aString, '\U$1', True);
+  Result[1] := lowerCase(Result[1]);
 end;
 
 function pascalCase(const aString: string): string;
 begin
-  result := ReplaceRegExpr('([A-Z])', aString, '\U$1', True);
-  result[1] := upCase(Result[1]);
+  Result := ReplaceRegExpr('([A-Z])', aString, '\U$1', True);
+  Result[1] := upCase(Result[1]);
 end;
 
 
 function selectorCase(const aString: string): string;
 begin
-  result := lowerCase(aString[1]) + copy(aString, 2, Length(aString));
-  result := ReplaceRegExpr('([A-Z])', result, '-\L$1', True);
+  Result := lowerCase(aString[1]) + copy(aString, 2, Length(aString));
+  Result := ReplaceRegExpr('([A-Z])', Result, '-\L$1', True);
 end;
 
 procedure getHandlers(typeKind: TTypeKind; out handlers: THandlerList);
 var
   holder: TJSONTypeHandlerHolder;
-  idx: integer;
+  idx:    integer;
 begin
   handlers := THandlerList.Create(False);
   for idx := Registry.Count - 1 downto 0 do
@@ -306,9 +324,46 @@ begin
   end;
 end;
 
-function TJSONObjectHelper.hasProperty(name: string): boolean;
+procedure getHandlers(typeKind: TTypeKinds; out handlers: THandlerList);
+var
+  holder: TJSONTypeHandlerHolder;
+  idx:    integer;
 begin
-  result := IndexOfName(name) >= 0;
+  handlers := THandlerList.Create(False);
+  for idx := Registry.Count - 1 downto 0 do
+  begin
+    holder := Registry[idx];
+    if holder.FKind in typeKind then
+      handlers.add(holder.Handler);
+  end;
+end;
+
+{ TJSONBooleanTypeHandle }
+
+function TJSONBooleanTypeHandle.parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean;
+begin
+  Result := False;
+  if (info^.PropType^.Kind = tkBool) and (node <> nil) then
+  begin
+    SetOrdProp(AObject, Info^.Name, ifThen(node.AsBoolean, 1, 0));
+    Result := True;
+  end;
+end;
+
+function TJSONBooleanTypeHandle.stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean;
+begin
+  Result := False;
+  if (info^.PropType^.Kind = tkBool) then
+  begin
+    res := TJSONBoolean.Create(GetOrdProp(AObject, Info^.Name) <> 0);
+    Result := True;
+  end;
+
+end;
+
+function TJSONObjectHelper.hasProperty(Name: string): boolean;
+begin
+  Result := IndexOfName(Name) >= 0;
 end;
 
 { TJSONStringListTypeHandle }
@@ -317,7 +372,7 @@ function TJSONStringListTypeHandle.parse(AObject: TObject; Info: PPropInfo; cons
 var
   target: TObject;
 begin
-  result := False;
+  Result := False;
   if node = nil then
     exit;
   if (Info <> nil) then
@@ -330,7 +385,7 @@ begin
 
       TStringList(target).Text := node.AsString;
       SetObjectProp(AObject, Info, target);
-      result := True;
+      Result := True;
     end;
   end
   else
@@ -346,14 +401,14 @@ function TJSONStringListTypeHandle.stringify(AObject: TObject; Info: PPropInfo; 
 var
   target: TObject;
 begin
-  result := False;
+  Result := False;
   if Info <> nil then
   begin
     if (Info^.PropType^.Kind = tkClass) and (UpperCase(Info^.PropType^.Name) = UpperCase('TStringList')) then
     begin
       target := GetObjectProp(AObject, Info);
       res := TJSONString.Create(TStringList(target).Text);
-      result := True;
+      Result := True;
     end;
   end
   else
@@ -361,7 +416,7 @@ begin
     if AObject is TStringList then
     begin
       res := TJSONString.Create(TStringList(AObject).Text);
-      result := True;
+      Result := True;
     end;
   end;
 end;
@@ -372,7 +427,7 @@ function TClassListHelper.indexOfClass(aClass: TClass): int64;
 var
   cc: TClassContainer;
 begin
-  result := -1;
+  Result := -1;
   for cc in self do
   begin
     if cc.theClass = aClass then
@@ -386,7 +441,7 @@ function TClassListHelper.indexOfClassName(aClassName: shortString): int64;
 var
   cc: TClassContainer;
 begin
-  result := -1;
+  Result := -1;
   for cc in self do
   begin
     if compareText(cc.theClass.ClassName, aClassName) = 0 then
@@ -400,7 +455,7 @@ function TClassListHelper.getClass(aClassName: shortString): TClass;
 var
   idx: int64;
 begin
-  result := nil;
+  Result := nil;
   idx := IndexOfClassName(aClassName);
   if idx > -1 then
     exit(Items[idx].theClass);
@@ -412,9 +467,9 @@ var
 begin
   idx := IndexOfClassName(aClassName);
   if idx > -1 then
-    result := (Items[idx].theFactory);
-  if result = nil then
-    result := @GenericCreateCall;
+    Result := (Items[idx].theFactory);
+  if Result = nil then
+    Result := @GenericCreateCall;
 end;
 
 
@@ -443,7 +498,10 @@ var
   aCollectionItem: TCollectionItem;
   handlers: THandlerList;
   h: TJsonTypeHandler;
+  collectionClassName, itemClassName: string;
 begin
+  collectionClassName := ACollection.ClassName;
+  itemClassName := ACollection.ItemClass.ClassName;
   getHandlers(tkClass, handlers);
   try
     for idx := 0 to arrayNode.Count - 1 do
@@ -485,15 +543,15 @@ end;
 
 function TJSONCollectionTypeHandle.stringifyPropertyList(AObject: TObject; var Res: TJSONData): boolean;
 var
-  idx: integer;
+  idx:   integer;
   handlers: THandlerList;
-  h: TJSONTypeHandler;
+  h:     TJSONTypeHandler;
   PList: PPropList;
   Count: integer;
-  Size: integer;
+  Size:  integer;
   childNode: TJSONData;
 begin
-  result := True;
+  Result := True;
   Count := GetPropList(AObject.ClassInfo, tkAny, nil);
   Size := Count * SizeOf(Pointer);
   GetMem(PList, Size);
@@ -525,23 +583,23 @@ var
   clz: TClass;
   aCollection: TCollection;
 begin
-  result := False;
+  Result := False;
   if (Info = nil) and (AObject is TCollection) then
   begin
     parseCollection(AObject as TCollection, node as TJSONArray);
-    result := True;
+    Result := True;
   end
   else
-  if (Info <> nil) and (AObject is TCollection) and (Info^.PropType^.Kind in [tkClass, tkObject]) then
-  begin
-    clz := GetJSONClass(Info^.PropType^.Name);
-    if clz.InheritsFrom(TCollection) then
+    if (Info <> nil) and (AObject is TCollection) and (Info^.PropType^.Kind in [tkClass, tkObject]) then
     begin
-      aCollection := GetObjectProp(AObject, Info) as TCollection;
-      parseCollection(aCollection, node as TJSONArray);
-      result := True;
+      clz := GetJSONClass(Info^.PropType^.Name);
+      if clz.InheritsFrom(TCollection) then
+      begin
+        aCollection := GetObjectProp(AObject, Info) as TCollection;
+        parseCollection(aCollection, node as TJSONArray);
+        Result := True;
+      end;
     end;
-  end;
 end;
 
 function TJSONCollectionTypeHandle.stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean;
@@ -549,23 +607,23 @@ var
   clz: TClass;
   aCollection: TCollection;
 begin
-  result := False;
+  Result := False;
   if (Info = nil) and (AObject is TCollection) then
   begin
     stringifyCollection(AObject as TCollection, res);
-    result := True;
+    Result := True;
   end
   else
-  if (Info <> nil) and (Info^.PropType^.Kind in [tkClass, tkObject]) then
-  begin
-    clz := GetJSONClass(Info^.PropType^.Name);
-    if clz.InheritsFrom(TCollection) then
+    if (Info <> nil) and (Info^.PropType^.Kind in [tkClass, tkObject]) then
     begin
-      aCollection := GetObjectProp(AObject, Info) as TCollection;
-      stringifyCollection(aCollection, Res);
-      result := True;
+      clz := GetJSONClass(Info^.PropType^.Name);
+      if clz.InheritsFrom(TCollection) then
+      begin
+        aCollection := GetObjectProp(AObject, Info) as TCollection;
+        stringifyCollection(aCollection, Res);
+        Result := True;
+      end;
     end;
-  end;
 end;
 
 { TJSONDynArrayIntegerTypeHandle }
@@ -575,11 +633,11 @@ type
   TSetter = procedure(values: TDynIntegerArray) of object;
 var
   values: TDynIntegerArray;
-  idx: integer;
-  m: TMethod;
+  idx:    integer;
+  m:      TMethod;
 begin
-  result := False;
-  if (Info^.PropType^.Kind = tkDynArray) and (comparetext(Info^.PropType^.name, 'TDynIntegerArray') = 0) then
+  Result := False;
+  if (Info^.PropType^.Kind = tkDynArray) and (comparetext(Info^.PropType^.Name, 'TDynIntegerArray') = 0) then
   begin
     if node <> nil then
     begin
@@ -599,7 +657,7 @@ begin
       m.Data := AObject;
       TSetter(m)(values);
     end;
-    result := True;
+    Result := True;
   end;
 end;
 
@@ -608,12 +666,12 @@ type
   TGetterByIndex = function(index: longint): TDynIntegerArray of object;
   TGetter = function: TDynIntegerArray of object;
 var
-  values: TDynIntegerArray;
-  idx: integer;
+  values:  TDynIntegerArray;
+  idx:     integer;
   AMethod: TMethod;
 begin
-  result := False;
-  if (Info^.PropType^.Kind = tkDynArray) and (Info^.PropType^.name = 'TDynIntegerArray') then
+  Result := False;
+  if (Info^.PropType^.Kind = tkDynArray) and (Info^.PropType^.Name = 'TDynIntegerArray') then
   begin
     begin
       case (Info^.PropProcs) and 3 of
@@ -639,7 +697,7 @@ begin
     begin
       TJSONArray(res).Add(values[idx]);
     end;
-    result := True;
+    Result := True;
   end;
 end;
 
@@ -647,21 +705,21 @@ end;
 
 function TJSONWideStringTypeHandle.parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean;
 begin
-  result := False;
+  Result := False;
   if (info^.PropType^.Kind in [tkWString]) and (node <> nil) then
   begin
     SetWideStrProp(AObject, Info^.Name, node.AsString);
-    result := True;
+    Result := True;
   end;
 end;
 
 function TJSONWideStringTypeHandle.stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean;
 begin
-  result := False;
+  Result := False;
   if (info^.PropType^.Kind in [tkWString]) then
   begin
     res := TJSONString.Create(GetWideStrProp(AObject, Info));
-    result := True;
+    Result := True;
   end;
 end;
 
@@ -669,22 +727,22 @@ end;
 
 function TJSONEnumerationTypeHandle.parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean;
 begin
-  result := False;
+  Result := False;
   if (Info^.PropType^.Kind = tkEnumeration) then
   begin
     if (node <> nil) then
       SetEnumProp(AObject, Info, Node.AsString);
-    result := True;
+    Result := True;
   end;
 end;
 
 function TJSONEnumerationTypeHandle.stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean;
 begin
-  result := False;
+  Result := False;
   if (Info^.PropType^.Kind = tkEnumeration) then
   begin
     res := TJSONString.Create(GetEnumProp(AObject, Info));
-    result := True;
+    Result := True;
   end;
 end;
 
@@ -695,11 +753,11 @@ type
   TSetter = procedure(values: TStringArray) of object;
 var
   values: TStringArray;
-  idx: integer;
-  m: TMethod;
+  idx:    integer;
+  m:      TMethod;
 begin
-  result := False;
-  if (Info^.PropType^.Kind = tkDynArray) and (Info^.PropType^.name = 'TStringArray') then
+  Result := False;
+  if (Info^.PropType^.Kind = tkDynArray) and (Info^.PropType^.Name = 'TStringArray') then
   begin
     if node <> nil then
     begin
@@ -719,7 +777,7 @@ begin
       m.Data := AObject;
       TSetter(m)(values);
     end;
-    result := True;
+    Result := True;
   end;
 end;
 
@@ -728,12 +786,12 @@ type
   TGetterByIndex = function(index: longint): TStringArray of object;
   TGetter = function: TStringArray of object;
 var
-  values: TStringArray;
-  idx: integer;
+  values:  TStringArray;
+  idx:     integer;
   AMethod: TMethod;
 begin
-  result := False;
-  if (Info^.PropType^.Kind = tkDynArray) and (Info^.PropType^.name = 'TStringArray') then
+  Result := False;
+  if (Info^.PropType^.Kind = tkDynArray) and (Info^.PropType^.Name = 'TStringArray') then
   begin
     begin
       case (Info^.PropProcs) and 3 of
@@ -759,7 +817,7 @@ begin
     begin
       TJSONArray(res).Add(values[idx]);
     end;
-    result := True;
+    Result := True;
   end;
 end;
 
@@ -767,34 +825,34 @@ end;
 
 function TJSONFloatTypeHandler.parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean;
 begin
-  result := False;
+  Result := False;
   if (info^.PropType^.Kind = tkFloat) and (info^.PropType^.Name = 'TDateTime') and (node <> nil) then
   begin
     SetFloatProp(AObject, Info^.Name, ISO8601ToDate(node.AsString));
-    result := True;
+    Result := True;
   end
   else
-  if (info^.PropType^.Kind = tkFloat) and (node <> nil) then
-  begin
-    SetFloatProp(AObject, Info^.Name, node.AsFloat);
-    result := True;
-  end;
+    if (info^.PropType^.Kind = tkFloat) and (node <> nil) then
+    begin
+      SetFloatProp(AObject, Info^.Name, node.AsFloat);
+      Result := True;
+    end;
 end;
 
 function TJSONFloatTypeHandler.stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean;
 begin
-  result := False;
+  Result := False;
   if (info^.PropType^.Kind = tkFloat) and (info^.PropType^.Name = 'TDateTime') then
   begin
     res := TJSONString.Create(DateToISO8601(GetFloatProp(AObject, Info)));
-    result := True;
+    Result := True;
   end
   else
-  if (info^.PropType^.Kind = tkFloat) then
-  begin
-    res := TJSONFloatNumber.Create(GetFloatProp(AObject, Info));
-    result := True;
-  end;
+    if (info^.PropType^.Kind = tkFloat) then
+    begin
+      res := TJSONFloatNumber.Create(GetFloatProp(AObject, Info));
+      Result := True;
+    end;
 
 end;
 
@@ -803,21 +861,21 @@ end;
 
 function TJSONIntegerTypeHandle.parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean;
 begin
-  result := False;
+  Result := False;
   if (info^.PropType^.Kind = tkInteger) and (node <> nil) then
   begin
     SetOrdProp(AObject, Info^.Name, node.AsInteger);
-    result := True;
+    Result := True;
   end;
 end;
 
 function TJSONIntegerTypeHandle.stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean;
 begin
-  result := False;
+  Result := False;
   if (info^.PropType^.Kind = tkInteger) then
   begin
     res := TJSONIntegerNumber.Create(GetOrdProp(AObject, Info^.Name));
-    result := True;
+    Result := True;
   end;
 end;
 
@@ -825,21 +883,21 @@ end;
 
 function TJSONStringTypeHandle.parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean;
 begin
-  result := False;
+  Result := False;
   if (info^.PropType^.Kind in [tkString, tkAString]) and (node <> nil) then
   begin
     SetStrProp(AObject, Info^.Name, node.AsString);
-    result := True;
+    Result := True;
   end;
 end;
 
 function TJSONStringTypeHandle.stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean;
 begin
-  result := False;
+  Result := False;
   if (info^.PropType^.Kind in [tkString, tkAString]) then
   begin
     res := TJSONString.Create(GetStrProp(AObject, Info));
-    result := True;
+    Result := True;
   end;
 end;
 
@@ -847,16 +905,17 @@ end;
 
 function TJSONObjectTypeHandler.stringifyPropertyList(AObject: TObject; var Res: TJSONData): boolean;
 var
-  idx: integer;
+  idx:   integer;
   handlers: THandlerList;
-  h: TJSONTypeHandler;
+  h:     TJSONTypeHandler;
   PList: PPropList;
   Count: integer;
-  Size: integer;
+  Size:  integer;
   childNode: TJSONData;
 begin
-  //Writeln('-->TJSONObjectTypeHandler.stringifyPropertyList');
-  result := True;
+  //if isConsole then
+  //  Writeln('-->TJSONObjectTypeHandler.stringifyPropertyList');
+  Result := True;
   Count := GetPropList(AObject.ClassInfo, tkAny, nil);
   Size := Count * SizeOf(Pointer);
   GetMem(PList, Size);
@@ -865,7 +924,8 @@ begin
     for idx := 0 to Count - 1 do
     begin
       try
-        //writeln('-- ', PList^[idx]^.Name, '');
+        if isConsole then
+          Writeln('-- ', PList^[idx]^.Name, '');
         getHandlers(PList^[idx]^.PropType^.Kind, handlers);
         for h in handlers do
         begin
@@ -882,24 +942,25 @@ begin
   finally
     FreeMem(PList);
   end;
-  //Writeln('<--TJSONObjectTypeHandler.stringifyPropertyList(', AObject.ClassName, ')');
+  //if isConsole then
+  //  Writeln('<--TJSONObjectTypeHandler.stringifyPropertyList(', AObject.ClassName, ')');
 end;
 
 function TJSONObjectTypeHandler.parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean;
 var
-  idx: integer;
+  idx:   integer;
   handlers: THandlerList;
-  h: TJSONTypeHandler;
+  h:     TJSONTypeHandler;
   PList: PPropList;
   Count: integer;
-  Size: integer;
+  Size:  integer;
   anObject: TObject;
-  clz: TClass;
+  clz:   TClass;
   pname: string;
   childNode: TJSONData;
   factory: TFactory;
 begin
-  result := False;
+  Result := False;
   if node = nil then
     exit;
   if info = nil then
@@ -942,7 +1003,7 @@ begin
     finally
       FreeMem(PList);
     end;
-    result := True;
+    Result := True;
   end
   else
   begin
@@ -976,38 +1037,39 @@ var
   handlers: THandlerList;
   h: TJSONTypeHandler;
 begin
-  result := False;
+  Result := False;
   if AObject = nil then
   begin
     res := CreateJSON;
     Result := True;
   end
   else
-  if info = nil then
-  begin
-    //Writeln(AObject.ClassName);
-    Res := TJSONObject.Create;
-    stringifyPropertyList(AObject, Res);
-    result := True;
-  end
-  else
-  begin
-    propObject := GetObjectProp(AObject, Info^.Name);
-    if propObject <> nil then
+    if info = nil then
     begin
-      getHandlers(Info^.PropType^.Kind, handlers);
-      for h in handlers do
-      begin
-        if h.stringify(propObject, nil, childNode) then
-          break;
-      end;
-      handlers.Free;
-      res := childNode;
+      //if isConsole then
+      //  Writeln(AObject.ClassName);
+      Res := TJSONObject.Create;
+      stringifyPropertyList(AObject, Res);
+      Result := True;
     end
     else
-      res := CreateJSON;
-    result := True;
-  end;
+    begin
+      propObject := GetObjectProp(AObject, Info^.Name);
+      if propObject <> nil then
+      begin
+        getHandlers(Info^.PropType^.Kind, handlers);
+        for h in handlers do
+        begin
+          if h.stringify(propObject, nil, childNode) then
+            break;
+        end;
+        handlers.Free;
+        res := childNode;
+      end
+      else
+        res := CreateJSON;
+      Result := True;
+    end;
 end;
 
 
@@ -1035,18 +1097,18 @@ end;
 
 { TJSON }
 
-function TJSON3.parse(source: TJSONStringType; clz: TClass): TObject;
+function TJSON3.parse(Source: TJSONStringType; clz: TClass): TObject;
 var
   jsonData: TJSONData;
   factory: TFactory;
   handlers: THandlerList;
   h: TJsonTypeHandler;
 begin
-  jsonData := GetJSON(source, True);
+  jsonData := GetJSON(Source, True);
   try
     factory := GetJSONFactory(clz.ClassName);
-    result := factory(clz);
-    if (result = nil) then
+    Result := factory(clz);
+    if (Result = nil) then
       raise EFactoryFailure.Create(clz.ClassName);
 
     getHandlers(tkObject, handlers);
@@ -1058,8 +1120,8 @@ begin
     handlers.Free;
     jsonData.Free;
   except
-    if result <> nil then
-      result.FreeInstance;
+    if Result <> nil then
+      Result.FreeInstance;
   end;
 end;
 
@@ -1088,16 +1150,17 @@ begin
       handlers.Free;
     end;
     if jsonData <> nil then
-      result := jsonData.FormatJSON(FormatOptions)
+      Result := jsonData.FormatJSON(FormatOptions)
     else
-      result := 'null';
+      Result := 'null';
   finally
     try
       if jsonData <> nil then
         jsonData.Free;
     except
       on e: Exception do
-        //Writeln(e.message);
+        if isConsole then
+          Writeln(e.message);
     end;
   end;
 end;
@@ -1112,6 +1175,7 @@ initialization
   RegisterJsonTypeHandler(tkObject, TJSONObjectTypeHandler.Create);
   RegisterJsonTypeHandler(tkClass, TJSONObjectTypeHandler.Create);
   RegisterJsonTypeHandler(tkInt64, TJSONIntegerTypeHandle.Create);
+  RegisterJsonTypeHandler(tkBool, TJSONBooleanTypeHandle.Create);
   RegisterJsonTypeHandler(tkInteger, TJSONIntegerTypeHandle.Create);
   RegisterJsonTypeHandler(tkFloat, TJSONFloatTypeHandler.Create);
   RegisterJsonTypeHandler(tkString, TJSONStringTypeHandle.Create);
