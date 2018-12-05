@@ -194,7 +194,7 @@ type
     property theFactory: TFactory read FtheFactory write SettheFactory;
   end;
 
-  TClassList = specialize TFPGList<TClassContainer>;
+  TClassList = specialize TFPGObjectList<TClassContainer>;
 
   { TClassListHelper }
 
@@ -924,8 +924,8 @@ begin
     for idx := 0 to Count - 1 do
     begin
       try
-        if isConsole then
-          Writeln('-- ', PList^[idx]^.Name, '');
+        //if isConsole then
+        //  Writeln('-- ', PList^[idx]^.Name, '');
         getHandlers(PList^[idx]^.PropType^.Kind, handlers);
         for h in handlers do
         begin
@@ -1170,7 +1170,7 @@ initialization
   InitCriticalSection(ClassCS);
   JSON := TJSON3.Create;
   Registry := TJSONTypeRegistry.Create();
-  ClassList := TClassList.Create;
+  ClassList := TClassList.Create(true);
   RegisterJSONClass(TStringList);
   RegisterJsonTypeHandler(tkObject, TJSONObjectTypeHandler.Create);
   RegisterJsonTypeHandler(tkClass, TJSONObjectTypeHandler.Create);
@@ -1190,7 +1190,9 @@ initialization
   RegisterJsonTypeHandler(tkObject, TJSONStringListTypeHandle.Create);
 
 
-finalization;
+finalization
+  ClassList.Clear;
+  Registry.Clear;
   ClassList.Free;
   Registry.Free;
   JSON.Free;
