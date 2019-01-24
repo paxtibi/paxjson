@@ -30,6 +30,7 @@ before_install:
   - Xvfb $DISPLAY &
 
 install:
+  - cd
   # Install prerequisites (fpc/lazarus/wine/qemu)
   - .travis.install.py
 
