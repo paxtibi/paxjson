@@ -1,7 +1,7 @@
 # Part of `travis-lazarus` (https://github.com/nielsAD/travis-lazarus)
 # License: MIT
 
-language: generic
+language: FreePascal
 sudo: required
 dist: trusty
 
