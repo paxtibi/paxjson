@@ -205,9 +205,9 @@ type
   end;
 
 var
-  Registry: TJSONTypeRegistry;
+  Registry:  TJSONTypeRegistry;
   ClassList: TClassList;
-  ClassCS: TRTLCriticalSection;
+  ClassCS:   TRTLCriticalSection;
 
 procedure RegisterJsonTypeHandler(aTypeKind: TTypeKind; aHandler: TJsonTypeHandler);
 var
@@ -237,7 +237,9 @@ begin
       ClassList.Add(cc);
       AClass := AClass.ClassParent;
       if (aClass = nil) or (aClass = TObject) then
+      begin
         break;
+      end;
     end;
   finally
     LeaveCriticalsection(ClassCS);
@@ -276,13 +278,15 @@ end;
 
 function camelCase(const aString: string): string;
 begin
-  Result := ReplaceRegExpr('([A-Z])', aString, '\U$1', True);
+  Result := StringReplace(aString, ' ', '', [rfReplaceAll]);
+  Result := ReplaceRegExpr('([A-Z ])', Result, '\U$1', True);
   Result[1] := lowerCase(Result[1]);
 end;
 
 function pascalCase(const aString: string): string;
 begin
-  Result := ReplaceRegExpr('([A-Z])', aString, '\U$1', True);
+  Result := StringReplace(aString, ' ', '', [rfReplaceAll]);
+  Result := ReplaceRegExpr('([A-Z])', Result, '\U$1', True);
   Result[1] := upCase(Result[1]);
 end;
 
@@ -290,13 +294,13 @@ end;
 function selectorCase(const aString: string): string;
 begin
   Result := lowerCase(aString[1]) + copy(aString, 2, Length(aString));
-  Result := ReplaceRegExpr('([A-Z])', Result, '-\L$1', True);
+  Result := ReplaceRegExpr('(\s*)?([A-Z])', Result, '-\L$2', True);
 end;
 
 procedure getHandlers(typeKind: TTypeKind; out handlers: THandlerList);
 var
   holder: TJSONTypeHandlerHolder;
-  idx: integer;
+  idx:    integer;
 begin
   TLogLogger.GetLogger('JSON').Enter('getHandlers(' + GetEnumName(TypeInfo(TTypeKind), Ord(typeKind)) + ')');
   handlers := THandlerList.Create(False);
@@ -304,7 +308,9 @@ begin
   begin
     holder := Registry[idx];
     if holder.FKind = typeKind then
+    begin
       handlers.add(holder.Handler);
+    end;
   end;
   TLogLogger.GetLogger('JSON').Leave('getHandlers(' + GetEnumName(TypeInfo(TTypeKind), Ord(typeKind)) + ')');
 end;
@@ -312,7 +318,7 @@ end;
 procedure getHandlers(typeKind: TTypeKinds; out handlers: THandlerList);
 var
   holder: TJSONTypeHandlerHolder;
-  idx: integer;
+  idx:    integer;
 begin
   TLogLogger.GetLogger('JSON').Enter('getHandlers');
   handlers := THandlerList.Create(False);
@@ -320,7 +326,9 @@ begin
   begin
     holder := Registry[idx];
     if holder.FKind in typeKind then
+    begin
       handlers.add(holder.Handler);
+    end;
   end;
   TLogLogger.GetLogger('JSON').Leave('getHandlers');
 end;
@@ -361,14 +369,18 @@ var
 begin
   Result := False;
   if node = nil then
+  begin
     exit;
+  end;
   if (Info <> nil) then
   begin
     if (Info^.PropType^.Kind = tkClass) and (UpperCase(Info^.PropType^.Name) = UpperCase('TStringList')) then
     begin
       target := GetObjectProp(AObject, Info);
       if target = nil then
+      begin
         target := TStringList.Create;
+      end;
 
       TStringList(target).Text := node.AsString;
       SetObjectProp(AObject, Info, target);
@@ -445,7 +457,9 @@ begin
   Result := nil;
   idx := IndexOfClassName(aClassName);
   if idx > -1 then
+  begin
     exit(Items[idx].theClass);
+  end;
 end;
 
 function TClassListHelper.getFactory(aClassName: shortString): TFactory;
@@ -454,9 +468,13 @@ var
 begin
   idx := IndexOfClassName(aClassName);
   if idx > -1 then
+  begin
     Result := (Items[idx].theFactory);
+  end;
   if Result = nil then
+  begin
     Result := @GenericCreateCall;
+  end;
 end;
 
 
@@ -465,14 +483,18 @@ end;
 procedure TClassContainer.SettheClass(AValue: TClass);
 begin
   if FtheClass = AValue then
+  begin
     Exit;
+  end;
   FtheClass := AValue;
 end;
 
 procedure TClassContainer.SettheFactory(AValue: TFactory);
 begin
   if FtheFactory = AValue then
+  begin
     Exit;
+  end;
   FtheFactory := AValue;
 end;
 
@@ -503,7 +525,9 @@ begin
         for h in handlers do
         begin
           if h.parse(aCollectionItem, nil, childNode) then
+          begin
             break;
+          end;
         end;
       end;
     end;
@@ -532,10 +556,14 @@ begin
       begin
         childNode := nil;
         if h.stringify(aCollectionItem, nil, childNode) then
+        begin
           break;
+        end;
       end;
       if childNode <> nil then
+      begin
         TJSONArray(res).Add(childNode);
+      end;
     end;
     handlers.Free;
     Result := True;
@@ -545,12 +573,12 @@ end;
 
 function TJSONCollectionTypeHandle.stringifyPropertyList(AObject: TObject; var Res: TJSONData): boolean;
 var
-  idx: integer;
+  idx:   integer;
   handlers: THandlerList;
-  h: TJSONTypeHandler;
+  h:     TJSONTypeHandler;
   PList: PPropList;
   Count: integer;
-  Size: integer;
+  Size:  integer;
   childNode: TJSONData;
 begin
   Result := True;
@@ -595,19 +623,19 @@ begin
     TLogLogger.GetLogger('JSON').Leave(self, 'parse');
   end
   else
-  if (Info <> nil) and (AObject is TCollection) and (Info^.PropType^.Kind in [tkClass, tkObject]) then
-  begin
-    TLogLogger.GetLogger('JSON').Enter(self, 'parse');
-    TLogLogger.GetLogger('JSON').Trace(AObject.ClassName + '.' + Info^.PropType^.Name);
-    clz := GetJSONClass(Info^.PropType^.Name);
-    if clz.InheritsFrom(TCollection) then
+    if (Info <> nil) and (AObject is TCollection) and (Info^.PropType^.Kind in [tkClass, tkObject]) then
     begin
-      aCollection := GetObjectProp(AObject, Info) as TCollection;
-      parseCollection(aCollection, node as TJSONArray);
-      Result := True;
+      TLogLogger.GetLogger('JSON').Enter(self, 'parse');
+      TLogLogger.GetLogger('JSON').Trace(AObject.ClassName + '.' + Info^.PropType^.Name);
+      clz := GetJSONClass(Info^.PropType^.Name);
+      if clz.InheritsFrom(TCollection) then
+      begin
+        aCollection := GetObjectProp(AObject, Info) as TCollection;
+        parseCollection(aCollection, node as TJSONArray);
+        Result := True;
+      end;
+      TLogLogger.GetLogger('JSON').Leave(self, 'parse');
     end;
-    TLogLogger.GetLogger('JSON').Leave(self, 'parse');
-  end;
 end;
 
 function TJSONCollectionTypeHandle.stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean;
@@ -625,16 +653,16 @@ begin
       Result := True;
     end
     else
-    if (Info <> nil) and (Info^.PropType^.Kind in [tkClass, tkObject]) then
-    begin
-      clz := GetJSONClass(Info^.PropType^.Name);
-      if clz.InheritsFrom(TCollection) then
+      if (Info <> nil) and (Info^.PropType^.Kind in [tkClass, tkObject]) then
       begin
-        aCollection := GetObjectProp(AObject, Info) as TCollection;
-        stringifyCollection(aCollection, Res);
-        Result := True;
+        clz := GetJSONClass(Info^.PropType^.Name);
+        if clz.InheritsFrom(TCollection) then
+        begin
+          aCollection := GetObjectProp(AObject, Info) as TCollection;
+          stringifyCollection(aCollection, Res);
+          Result := True;
+        end;
       end;
-    end;
   end;
   TLogLogger.GetLogger('JSON').Leave(self, 'stringify');
 end;
@@ -646,8 +674,8 @@ type
   TSetter = procedure(values: TDynIntegerArray) of object;
 var
   values: TDynIntegerArray;
-  idx: integer;
-  m: TMethod;
+  idx:    integer;
+  m:      TMethod;
 begin
   Result := False;
   if (Info^.PropType^.Kind = tkDynArray) and (comparetext(Info^.PropType^.Name, 'TDynIntegerArray') = 0) then
@@ -679,8 +707,8 @@ type
   TGetterByIndex = function(index: longint): TDynIntegerArray of object;
   TGetter = function: TDynIntegerArray of object;
 var
-  values: TDynIntegerArray;
-  idx: integer;
+  values:  TDynIntegerArray;
+  idx:     integer;
   AMethod: TMethod;
 begin
   Result := False;
@@ -689,19 +717,29 @@ begin
     begin
       case (Info^.PropProcs) and 3 of
         ptField:
+        begin
           values := TDynIntegerArray((Pointer(AObject) + PtrUInt(Info^.GetProc))^);
+        end;
         ptStatic,
         ptVirtual:
         begin
           if (Info^.PropProcs and 3) = ptStatic then
-            AMethod.Code := Info^.GetProc
+          begin
+            AMethod.Code := Info^.GetProc;
+          end
           else
+          begin
             AMethod.Code := PCodePointer(Pointer(AObject.ClassType) + PtrUInt(Info^.GetProc))^;
+          end;
           AMethod.Data := AObject;
           if ((Info^.PropProcs shr 6) and 1) <> 0 then
-            values := TGetterByIndex(AMethod)(Info^.Index)
+          begin
+            values := TGetterByIndex(AMethod)(Info^.Index);
+          end
           else
+          begin
             values := TGetter(AMethod)();
+          end;
         end;
       end;
     end;
@@ -744,7 +782,9 @@ begin
   if (Info^.PropType^.Kind = tkEnumeration) then
   begin
     if (node <> nil) then
+    begin
       SetEnumProp(AObject, Info, Node.AsString);
+    end;
     Result := True;
   end;
 end;
@@ -766,8 +806,8 @@ type
   TSetter = procedure(values: TStringArray) of object;
 var
   values: TStringArray;
-  idx: integer;
-  m: TMethod;
+  idx:    integer;
+  m:      TMethod;
 begin
   Result := False;
   if (Info^.PropType^.Kind = tkDynArray) and (Info^.PropType^.Name = 'TStringArray') then
@@ -799,8 +839,8 @@ type
   TGetterByIndex = function(index: longint): TStringArray of object;
   TGetter = function: TStringArray of object;
 var
-  values: TStringArray;
-  idx: integer;
+  values:  TStringArray;
+  idx:     integer;
   AMethod: TMethod;
 begin
   Result := False;
@@ -809,19 +849,29 @@ begin
     begin
       case (Info^.PropProcs) and 3 of
         ptField:
+        begin
           values := TStringArray((Pointer(AObject) + PtrUInt(Info^.GetProc))^);
+        end;
         ptStatic,
         ptVirtual:
         begin
           if (Info^.PropProcs and 3) = ptStatic then
-            AMethod.Code := Info^.GetProc
+          begin
+            AMethod.Code := Info^.GetProc;
+          end
           else
+          begin
             AMethod.Code := PCodePointer(Pointer(AObject.ClassType) + PtrUInt(Info^.GetProc))^;
+          end;
           AMethod.Data := AObject;
           if ((Info^.PropProcs shr 6) and 1) <> 0 then
-            values := TGetterByIndex(AMethod)(Info^.Index)
+          begin
+            values := TGetterByIndex(AMethod)(Info^.Index);
+          end
           else
+          begin
             values := TGetter(AMethod)();
+          end;
         end;
       end;
     end;
@@ -845,11 +895,11 @@ begin
     Result := True;
   end
   else
-  if (info^.PropType^.Kind = tkFloat) and (node <> nil) then
-  begin
-    SetFloatProp(AObject, Info^.Name, node.AsFloat);
-    Result := True;
-  end;
+    if (info^.PropType^.Kind = tkFloat) and (node <> nil) then
+    begin
+      SetFloatProp(AObject, Info^.Name, node.AsFloat);
+      Result := True;
+    end;
 end;
 
 function TJSONFloatTypeHandler.stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean;
@@ -861,11 +911,11 @@ begin
     Result := True;
   end
   else
-  if (info^.PropType^.Kind = tkFloat) then
-  begin
-    res := TJSONFloatNumber.Create(GetFloatProp(AObject, Info));
-    Result := True;
-  end;
+    if (info^.PropType^.Kind = tkFloat) then
+    begin
+      res := TJSONFloatNumber.Create(GetFloatProp(AObject, Info));
+      Result := True;
+    end;
 
 end;
 
@@ -919,12 +969,12 @@ end;
 procedure TJSONObjectTypeHandler.parseProperties(AObject: TObject; Node: TJSONData);
 
 var
-  idx: integer;
+  idx:   integer;
   handlers: THandlerList;
-  h: TJSONTypeHandler;
+  h:     TJSONTypeHandler;
   PList: PPropList;
   Count: integer;
-  Size: integer;
+  Size:  integer;
   pname: string;
   childNode: TJSONData;
 begin
@@ -961,7 +1011,9 @@ begin
           for h in handlers do
           begin
             if h.parse(AObject, PList^[idx], childNode) then
+            begin
               break;
+            end;
           end;
         finally
           FreeAndNil(handlers);
@@ -981,12 +1033,12 @@ end;
 
 function TJSONObjectTypeHandler.stringifyPropertyList(AObject: TObject; var Res: TJSONData): boolean;
 var
-  idx: integer;
+  idx:   integer;
   handlers: THandlerList;
-  h: TJSONTypeHandler;
+  h:     TJSONTypeHandler;
   PList: PPropList;
   Count: integer;
-  Size: integer;
+  Size:  integer;
   childNode: TJSONData;
 begin
   TLogLog.GetLogger('JSON').Enter(self, 'stringifyPropertyList');
@@ -1026,7 +1078,7 @@ end;
 function TJSONObjectTypeHandler.parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean;
 var
   handlers: THandlerList;
-  h: TJSONTypeHandler;
+  h:   TJSONTypeHandler;
   anObject: TObject;
   clz: TClass;
   factory: TFactory;
@@ -1034,7 +1086,9 @@ begin
   TLogLog.GetLogger('JSON').Enter(self, 'parse');
   Result := False;
   if node = nil then
+  begin
     exit;
+  end;
   TLogLog.GetLogger('JSON').Trace(AObject.ClassName);
   if info = nil then
   begin
@@ -1050,18 +1104,22 @@ begin
       clz := GetJSONClass(info^.PropType^.Name);
       factory := GetJSONFactory(info^.PropType^.Name);
       if clz <> nil then
+      begin
         anObject := factory(clz);
+      end;
     end;
     if anObject <> nil then
     begin
       getHandlers(info^.PropType^.Kind, handlers);
       for h in handlers do
+      begin
         if h.parse(anObject, nil, node) then
         begin
           Result := True;
           SetObjectProp(aObject, info, anObject);
           break;
         end;
+      end;
       handlers.Free;
     end;
   end;
@@ -1083,30 +1141,34 @@ begin
     Result := True;
   end
   else
-  if info = nil then
-  begin
-    Res := TJSONObject.Create;
-    stringifyPropertyList(AObject, Res);
-    Result := True;
-  end
-  else
-  begin
-    propObject := GetObjectProp(AObject, Info^.Name);
-    if propObject <> nil then
+    if info = nil then
     begin
-      getHandlers(Info^.PropType^.Kind, handlers);
-      for h in handlers do
-      begin
-        if h.stringify(propObject, nil, childNode) then
-          break;
-      end;
-      handlers.Free;
-      res := childNode;
+      Res := TJSONObject.Create;
+      stringifyPropertyList(AObject, Res);
+      Result := True;
     end
     else
-      res := CreateJSON;
-    Result := True;
-  end;
+    begin
+      propObject := GetObjectProp(AObject, Info^.Name);
+      if propObject <> nil then
+      begin
+        getHandlers(Info^.PropType^.Kind, handlers);
+        for h in handlers do
+        begin
+          if h.stringify(propObject, nil, childNode) then
+          begin
+            break;
+          end;
+        end;
+        handlers.Free;
+        res := childNode;
+      end
+      else
+      begin
+        res := CreateJSON;
+      end;
+      Result := True;
+    end;
   TLogLog.GetLogger('JSON').Leave(self, 'stringify');
 end;
 
@@ -1116,14 +1178,18 @@ end;
 procedure TJSONTypeHandlerHolder.SetHandler(AValue: TJsonTypeHandler);
 begin
   if FHandler = AValue then
+  begin
     Exit;
+  end;
   FHandler := AValue;
 end;
 
 procedure TJSONTypeHandlerHolder.SetKind(AValue: TTypeKind);
 begin
   if FKind = AValue then
+  begin
     Exit;
+  end;
   FKind := AValue;
 end;
 
@@ -1148,19 +1214,25 @@ begin
     factory := GetJSONFactory(clz.ClassName);
     Result := factory(clz);
     if (Result = nil) then
+    begin
       raise EFactoryFailure.Create(clz.ClassName);
+    end;
 
     getHandlers(tkObject, handlers);
     for h in handlers do
     begin
       if h.parse(Result, nil, jsonData) then
+      begin
         break;
+      end;
     end;
     handlers.Free;
     jsonData.Free;
   except
     if Result <> nil then
+    begin
       Result.FreeInstance;
+    end;
   end;
   TLogLog.GetLogger('JSON').Leave(self, 'parse');
 end;
@@ -1177,7 +1249,9 @@ begin
     for h in handlers do
     begin
       if h.stringify(obj, nil, jsonData) then
+      begin
         break;
+      end;
     end;
     handlers.Free;
     if jsonData = nil then
@@ -1186,22 +1260,32 @@ begin
       for h in handlers do
       begin
         if h.stringify(obj, nil, jsonData) then
+        begin
           break;
+        end;
       end;
       handlers.Free;
     end;
     if jsonData <> nil then
-      Result := jsonData.FormatJSON(FormatOptions)
+    begin
+      Result := jsonData.FormatJSON(FormatOptions);
+    end
     else
+    begin
       Result := 'null';
+    end;
   finally
     try
       if jsonData <> nil then
+      begin
         jsonData.Free;
+      end;
     except
       on e: Exception do
         if isConsole then
+        begin
           Writeln(e.message);
+        end;
     end;
   end;
   TLogLog.GetLogger('JSON').Leave(self, 'stringify');
