@@ -1,0 +1,3 @@
+[submodule "paxlogging"]
+	path = paxlogging
+	url = https://github.com/paxtibi/paxlogging.git
