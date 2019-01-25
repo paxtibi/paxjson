@@ -32,10 +32,10 @@ before_install:
 install:
   - cd
   # Install prerequisites (fpc/lazarus/wine/qemu)
-  - .travis.install.py
 
 script:
-  - lazbuild $LAZ_OPT tests.lpi               # Build my_lazarus_test project
+  - ./.travis.install.py
+  - lazbuild $LAZ_OPT ./pck/tests.lpi               # Build my_lazarus_test project
   - $LAZ_ENV ./bin/i386/tests --all --format=plain # Run my_lazarus_test testsuite
   - $LAZ_ENV ./bin/x86_64/tests --all --format=plain # Run my_lazarus_test testsuite
 
