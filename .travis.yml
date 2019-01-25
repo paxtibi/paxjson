@@ -19,20 +19,19 @@ env:
 matrix:
   include:
     - os: linux
-      env: LAZ_VER=1.8.4 LAZ_ENV=wine WINEARCH=win32 LAZ_OPT="--os=win32 --cpu=i386 -D=TRAVIS_CI"
+      env: LAZ_VER=1.8.4 LAZ_ENV=wine WINEARCH=win32 LAZ_OPT="--os=win32 --cpu=i386 -dTRAVIS_CI"
     - os: linux
-      env: LAZ_VER=1.8.4 LAZ_ENV=wine WINEARCH=win64 LAZ_OPT="--os=win64 --cpu=x86_64 -D=TRAVIS_CI"
-    - os: linux
-      env: LAZ_VER=1.8.4 LAZ_ENV=qemu-arm LAZ_OPT="--os=linux --cpu=arm"
+      env: LAZ_VER=1.8.4 LAZ_ENV=wine WINEARCH=win64 LAZ_OPT="--os=linux --cpu=x86_64 -dTRAVIS_CI"
 
 before_install:
   # Start virtual display server
   - Xvfb $DISPLAY &
 
 install:
-  # Install prerequisites (fpc/lazarus/wine/qemu)
-  - chmod +x .travis.install.py
-  - ./.travis.install.py
+  - sudo apt-get update
+  - sudo apt-get install fpc
+  - sudo apt-get install lazarus-1.8
+		  
 script:
   - ls -1 ./pck/*
   - lazbuild $LAZ_OPT ./pck/paxjson_package.lpk
