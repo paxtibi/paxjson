@@ -35,6 +35,7 @@ install:
   - ./.travis.install.py
 script:
   - ls -1 ./pck/*
+  - lazbuild $LAZ_OPT ./pck/paxlogging/paxlogging_package.lpk
   - lazbuild $LAZ_OPT ./pck/paxjson_package.lpk
   - lazbuild $LAZ_OPT ./pck/tests.lpi               
   - ls -1 ./bin/*
