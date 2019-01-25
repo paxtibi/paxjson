@@ -9,9 +9,16 @@ uses
 
 
 //Date Format: http://es5.github.io/#x15.9.1.15
-
+{$IFDEF TRAVIS_CI}
+TFormatOption = (foSingleLineArray,   // Array without CR/LF : all on one line
+                   foSingleLineObject,  // Object without CR/LF : all on one line
+                   foDoNotQuoteMembers, // Do not quote object member names.
+                   foUseTabchar,        // Use tab characters instead of spaces.
+                   foSkipWhiteSpace);   // Do not use whitespace at all
+  TFormatOptions = set of TFormatOption;
 const
   AsCompressedJSON = [foSingleLineArray, foSingleLineObject, foskipWhiteSpace];
+{$ENDIF}
 
 type
 
