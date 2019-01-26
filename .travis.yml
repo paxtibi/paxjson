@@ -27,7 +27,7 @@ before_install:
 #http://wiki.freepascal.org/How_to_setup_a_FPC_and_Lazarus_Ubuntu_repository
 install:
 - sudo apt-get update
-- sudo apt-get install lazarus
+- sudo apt-get install lazarus-1.8
   		  
 script:
 - ls -1 ./pck/*
