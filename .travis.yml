@@ -21,20 +21,20 @@ matrix:
       env: LAZ_VER=1.8.2 LAZ_ENV=wine WINEARCH=win64 LAZ_OPT="--os=linux --cpu=x86_64 -dTRAVIS_CI"
 
 before_install:
-  # Start virtual display server
-  - Xvfb $DISPLAY &
+# Start virtual display server
+- Xvfb $DISPLAY &
 
 install:
-  - sudo aptitude install fpc fpc-source lcl
-  - sudo aptitude install lazarus
+- sudo aptitude install fpc fpc-source lcl
+- sudo aptitude install lazarus
   		  
 script:
-  - ls -1 ./pck/*
-  - lazbuild $LAZ_OPT ./pck/paxjson_package.lpk
-  - lazbuild $LAZ_OPT ./pck/tests.lpi               
-  - ls -1 ./bin/*
-  - $LAZ_ENV ./bin/i386/tests --all --format=plain 
-  - $LAZ_ENV ./bin/x86_64/tests --all --format=plain
+- ls -1 ./pck/*
+- lazbuild $LAZ_OPT ./pck/paxjson_package.lpk
+- lazbuild $LAZ_OPT ./pck/tests.lpi               
+- ls -1 ./bin/*
+- $LAZ_ENV ./bin/i386/tests --all --format=plain 
+- $LAZ_ENV ./bin/x86_64/tests --all --format=plain
 
 notifications:
   email:
