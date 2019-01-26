@@ -19,9 +19,9 @@ env:
 matrix:
   include:
     - os: linux
-      env: LAZ_VER=1.8.4 LAZ_ENV=wine WINEARCH=win32 LAZ_OPT="--os=win32 --cpu=i386 -dTRAVIS_CI"
+      env: LAZ_VER=1.8.2 LAZ_ENV=wine WINEARCH=win32 LAZ_OPT="--os=win32 --cpu=i386 -dTRAVIS_CI"
     - os: linux
-      env: LAZ_VER=1.8.4 LAZ_ENV=wine WINEARCH=win64 LAZ_OPT="--os=linux --cpu=x86_64 -dTRAVIS_CI"
+      env: LAZ_VER=1.8.2 LAZ_ENV=wine WINEARCH=win64 LAZ_OPT="--os=linux --cpu=x86_64 -dTRAVIS_CI"
 
 before_install:
   # Start virtual display server
