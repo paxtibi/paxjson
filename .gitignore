@@ -1,3 +1,4 @@
+*.lps
 lib/
 bin/
 demo/lib/
