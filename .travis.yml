@@ -25,7 +25,7 @@ before_install:
 - Xvfb $DISPLAY &
 
 install:
-- sudo aptitude install fpc fpc-source lcl
+- sudo aptitude install fpc fpc-source
 - sudo aptitude install lazarus
   		  
 script:
