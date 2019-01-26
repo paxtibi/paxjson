@@ -28,8 +28,8 @@ before_install:
   - Xvfb $DISPLAY &
 
 install:
-  - chmod +x ./travis-lazarus/.travis.install.py
-  - ./travis-lazarus/.travis.install.py
+  - sudo aptitude install fpc fpc-source lcl
+  - sudo aptitude install lazarus
   		  
 script:
   - ls -1 ./pck/*
