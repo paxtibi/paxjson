@@ -24,10 +24,10 @@ before_install:
 # Start virtual display server
 - Xvfb $DISPLAY &
 
-#http://wiki.freepascal.org/How_to_setup_a_FPC_and_Lazarus_Ubuntu_repository
+#https://github.com/nielsAD/travis-lazarus
 install:
-- sudo apt-get update
-- sudo apt-get install lazarus-1.8
+- chmod +x .travis.install.py
+- ./.travis.install.py
   		  
 script:
 - ls -1 ./pck/*
