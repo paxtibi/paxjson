@@ -1,4 +1,7 @@
-language: pascal
+# Part of `travis-lazarus` (https://github.com/nielsAD/travis-lazarus)
+# License: MIT
+
+language: generic
 sudo: required
 dist: trusty
 
@@ -11,20 +14,18 @@ env:
     - DISPLAY=:99.0
   matrix:
     - LAZ_PKG=true  # Use the latest version from the default package manager
-    - LAZ_VER=1.8.4
+    - LAZ_VER=1.8.4 # Use specific (binary) release
 
 matrix:
   include:
     - os: linux
-      env: LAZ_VER=1.8.4 LAZ_ENV=wine WINEARCH=win32 LAZ_OPT="--os=win32 --cpu=i386 -dTRAVIS_CI"
+      env: LAZ_VER=1.8.4 LAZ_ENV=wine WINEARCH=win32 LAZ_OPT="--os=win32 --cpu=i386"
     - os: linux
-      env: LAZ_VER=1.8.4 LAZ_ENV=wine WINEARCH=win64 LAZ_OPT="--os=linux --cpu=x86_64 -dTRAVIS_CI"
+      env: LAZ_VER=1.8.4  LAZ_ENV=wine WINEARCH=win64 LAZ_OPT="--os=win64 --cpu=x86_64"
 
 before_install:
-# Start virtual display server
-- Xvfb $DISPLAY &
-
-#https://github.com/nielsAD/travis-lazarus
+  # Start virtual display server
+  - Xvfb $DISPLAY &
 install:
 - chmod +x .travis.install.py
 - ./.travis.install.py
