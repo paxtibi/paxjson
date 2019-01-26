@@ -24,9 +24,10 @@ before_install:
 # Start virtual display server
 - Xvfb $DISPLAY &
 
+#http://wiki.freepascal.org/How_to_setup_a_FPC_and_Lazarus_Ubuntu_repository
 install:
-- sudo aptitude install lazarus
-- sudo aptitude install fpc fpc-source
+- sudo apt-get update
+- sudo apt-get install lazarus
   		  
 script:
 - ls -1 ./pck/*
