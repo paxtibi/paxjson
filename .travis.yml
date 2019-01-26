@@ -28,10 +28,9 @@ before_install:
   - Xvfb $DISPLAY &
 
 install:
-  - sudo apt-get update
-  - sudo apt-get install fpc
-  - sudo apt-get install lazarus-1.8
-		  
+  - chmod +x ./travis-lazarus/.travis.install.py
+  - ./travis-lazarus/.travis.install.py
+  		  
 script:
   - ls -1 ./pck/*
   - lazbuild $LAZ_OPT ./pck/paxjson_package.lpk
