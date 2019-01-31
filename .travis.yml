@@ -29,7 +29,8 @@ before_install:
 install:
 - wget https://kent.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%201.8.4/lazarus-project_1.8.4-0_amd64.deb -O ./lazarus-project_1.8.4-0_amd64.deb
 - wget https://kent.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%201.8.4/fpc_3.0.4-3_amd64.deb -O ./fpc_3.0.4-3_amd64.deb              
-- wget https://kent.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%201.8.4/fpc-src_3.0.4-2_amd64.deb -O ./fpc-src_3.0.4-2_amd64.deb 
+- wget https://kent.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%201.8.4/fpc-src_3.0.4-2_amd64.deb -O ./fpc-src_3.0.4-2_amd64.deb
+- sudo dpkg -i libgtk2.0-dev   
 - sudo dpkg -i ./fpc-src_3.0.4-2_amd64.deb
 - sudo dpkg -i ./fpc_3.0.4-3_amd64.deb
 - sudo dpkg -i ./lazarus-project_1.8.4-0_amd64.deb
