@@ -393,7 +393,6 @@ begin
       begin
         target := TStringList.Create;
       end;
-
       TStringList(target).Text := node.AsString;
       SetObjectProp(AObject, Info, target);
       Result := True;
