@@ -55,14 +55,18 @@ function ACollectionFactory(aClass: TClass): TObject;
 begin
   result := nil;
   if aClass = TACollection then
+  begin
     result := TACollection.Create;
+  end;
 end;
 
 function MinimalObjectListFactory(aClass: TClass): TObject;
 begin
   result := nil;
   if aClass = TMinimalObjectList then
+  begin
     result := TMinimalObjectList.Create(True);
+  end;
 end;
 
 { TJSONDemo }
@@ -96,7 +100,9 @@ var
 begin
   col := TACollection.Create;
   for idx := 0 to 4 do
+  begin
     TACollectionItem(col.Add).aProperty := idx + 10;
+  end;
   col.Free;
 end;
 
@@ -106,7 +112,9 @@ var
 begin
   col := JSON.parse(CollectionJSONString, TACollection) as TACollection;
   if col <> nil then
+  begin
     col.Free;
+  end;
 end;
 
 procedure TJSONDemo.DoComplexObjectStringify;

@@ -1,4 +1,4 @@
-unit omtest;
+unit test_om;
 
 {$mode objfpc}{$H+}
 
