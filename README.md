@@ -1,3 +1,7 @@
+## badges
+![Travis CI](https://travis-ci.org/paxtibi/paxjson)
+
+
 # PaxJson.pas
 PaxJson.pas tries to provide a 3rd version of the json format specifications  (http://es5.github.io/#x15.9.1.15) 
 
