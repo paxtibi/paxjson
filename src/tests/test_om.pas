@@ -24,7 +24,7 @@ type
 
   TSimpleObject = class(TObject)
   private
-    FlastUpdate: TDateTime;
+    FLastUpdate: TDateTime;
     FPropertyFloat: single;
     FPropertyInteger: integer;
     FPropertyString: string;
@@ -61,7 +61,7 @@ type
     property List: TMinimalObjectList read FList write SetList;
   end;
 
-  TEnumProperty = (enum1, enum2);
+  TEnumProperty = (enum1, enum2, enum3);
 
   { TComplexObject }
 
