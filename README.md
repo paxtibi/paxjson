@@ -1,4 +1,4 @@
-## badges
+## Status
 [![Build Status](https://travis-ci.org/paxtibi/paxjson.svg?branch=master)](https://travis-ci.org/paxtibi/paxjson)
 
 # PaxJson.pas
