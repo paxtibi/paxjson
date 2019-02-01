@@ -26,7 +26,10 @@ install:
 
 script:
   - lazbuild pck/paxjson_package.lpk
-  - lazbuild pck/tests.lpr  
+  - lazbuild pck/tests.lpr
+  - lazbuild pck/tests.lpr  	  
+  - ls -1 bin/*
+  - ./bin/test/x86_64/tests -a --format=plain
 
 notifications:
   email:
