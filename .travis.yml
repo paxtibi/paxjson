@@ -25,7 +25,8 @@ install:
   - ./ci/travis.install.py
 
 script:
-  - ./ci/travis.compile.py
+  - lazbuild pck/paxjson_package.lpk
+  - lazbuild pck/tests.lpr  
 
 notifications:
   email:
