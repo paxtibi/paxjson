@@ -59,6 +59,13 @@ type
     function stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean; override;
   end;
 
+  { TJSONCustomFloatNumber }
+
+  TJSONCustomFloatNumber = class(TJSONFloatNumber)
+  protected
+    function GetAsString: TJSONStringType; override;
+  end;
+
   { TJSONStringTypeHandle }
 
   TJSONStringTypeHandle = class(TJsonTypeHandler)
@@ -134,6 +141,10 @@ function pascalCase(const aString: string): string;
 function selectorCase(const aString: string): string;
 procedure getHandlers(typeKind: TTypeKind; out handlers: THandlerList);
 procedure getHandlers(typeKind: TTypeKinds; out handlers: THandlerList);
+
+function DateToISO8601(DateTime: TDateTime): string;
+function ISO8601ToDate(DateTime: string): TDateTime;
+
 
 implementation
 
@@ -350,6 +361,13 @@ begin
     end;
   end;
   //TLogLogger.GetLogger('JSON').Leave('getHandlers');
+end;
+
+{ TJSONCustomFloatNumber }
+
+function TJSONCustomFloatNumber.GetAsString: TJSONStringType;
+begin
+  Result := FloatToStr(Value);
 end;
 
 { TJSONBooleanTypeHandle }
@@ -944,10 +962,9 @@ begin
   else
     if (info^.PropType^.Kind = tkFloat) then
     begin
-      res := TJSONFloatNumber.Create(GetFloatProp(AObject, Info));
+      res := TJSONCustomFloatNumber.Create(GetFloatProp(AObject, Info));
       Result := True;
     end;
-
 end;
 
 
@@ -1077,7 +1094,7 @@ begin
   Count := GetPropList(AObject.ClassInfo, tkAny, nil);
   Size := Count * SizeOf(Pointer);
   GetMem(PList, Size);
-  GetPropList(AObject.ClassInfo, tkAny, PList, False);
+  GetPropList(AObject.ClassInfo, tkAny, PList, true);
   try
     for idx := 0 to Count - 1 do
     begin
