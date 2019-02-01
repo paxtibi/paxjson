@@ -3,7 +3,9 @@ program tests;
 {$mode objfpc}{$H+}
 
 uses
-  Classes, consoletestrunner, test_casefunctions;
+  Classes,
+  consoletestrunner,
+  test_casefunctions, test_minimal_objects, test_simple_objects;
 
 type
 
@@ -11,7 +13,7 @@ type
 
   TMyTestRunner = class(TTestRunner)
   protected
-  // override the protected methods of TTestRunner to customize its behavior
+    // override the protected methods of TTestRunner to customize its behavior
   end;
 
 var
