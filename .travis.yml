@@ -1,20 +1,20 @@
 # Part of `travis-lazarus` (https://github.com/nielsAD/travis-lazarus)
 # License: MIT
 
-language: minimal
+language: generic
 sudo: required
-dist: xenial
+dist: trusty
+
 
 os:
   - linux
 
 env:
   global:
-    - WINEPREFIX=~/.winelaz
     - DISPLAY=:99.0
   matrix:
-    - LAZ_PKG=true  # Use the latest version from the default package manager
-    - LAZ_VER=1.8.4 # Use specific (binary) release
+    - LAZ_VER=1.8.2 LAZ_ENV=linux LAZ_OPT="--os=linux --cpu=x86_64"
+
 
 matrix:
   include:
@@ -23,26 +23,18 @@ matrix:
     - os: linux
       env: LAZ_VER=1.8.4  LAZ_ENV=wine WINEARCH=win64 LAZ_OPT="--os=win64 --cpu=x86_64"
 
+
 before_install:
   # Start virtual display server
   - Xvfb $DISPLAY &
+  - chmod +x ./ci/travis.install.py
+  - chmod +x ./ci/travis.compile.py
+
 install:
-- wget https://kent.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%201.8.4/lazarus-project_1.8.4-0_amd64.deb -O ./lazarus-project_1.8.4-0_amd64.deb
-- wget https://kent.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%201.8.4/fpc_3.0.4-3_amd64.deb -O ./fpc_3.0.4-3_amd64.deb              
-- wget https://kent.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%201.8.4/fpc-src_3.0.4-2_amd64.deb -O ./fpc-src_3.0.4-2_amd64.deb
-- sudo apt-get upgrade
-- sudo aptitude install libgtk* 
-- sudo aptitude install ./fpc-src_3.0.4-2_amd64.deb
-- sudo aptitude install ./fpc_3.0.4-3_amd64.deb
-- sudo aptitude install ./lazarus-project_1.8.4-0_amd64.deb
-  		  
+  - ./ci/travis.install.py
+
 script:
-- ls -1 ./pck/*
-- lazbuild $LAZ_OPT ./pck/paxjson_package.lpk
-- lazbuild $LAZ_OPT ./pck/tests.lpi               
-- ls -1 ./bin/*
-- $LAZ_ENV ./bin/i386/tests --all --format=plain 
-- $LAZ_ENV ./bin/x86_64/tests --all --format=plain
+  - ./ci/travis.compile.py
 
 notifications:
   email:
