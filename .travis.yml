@@ -30,8 +30,6 @@ script:
   - lazbuild demo/pck/jsonDemo.lpr
   - ls -1 bin/*
   - ./bin/test/x86_64/tests -a --format=plain
-  - apt-get install libmongoc
-  - apt-get install libbson
 
 notifications:
   email:
