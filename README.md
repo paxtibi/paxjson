@@ -1,6 +1,6 @@
 ## Status
 [![Build Status](https://travis-ci.org/paxtibi/paxjson.svg?branch=master)](https://travis-ci.org/paxtibi/paxjson)
-![Licence](https://img.shields.io/github/license/paxtibi/paxjson.svg)
+[![License LGPLv3][LGPLv3 badge]][LGPLv3]
 
 The current version of this project is licensed under LGPLv3
 
