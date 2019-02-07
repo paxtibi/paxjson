@@ -2,7 +2,7 @@
 [![Build Status](https://travis-ci.org/paxtibi/paxjson.svg?branch=master)](https://travis-ci.org/paxtibi/paxjson)
 ![Licence](https://img.shields.io/github/license/paxtibi/paxjson.svg)
 
-The current version of this project is licensed under both LGPLv3
+The current version of this project is licensed under LGPLv3
 
 # PaxJson.pas
 PaxJson.pas tries to provide a 3rd version of the json format specifications  (http://es5.github.io/#x15.9.1.15) 
