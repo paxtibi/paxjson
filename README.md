@@ -1,6 +1,6 @@
 ## Status
 [![Build Status](https://travis-ci.org/paxtibi/paxjson.svg?branch=master)](https://travis-ci.org/paxtibi/paxjson)
-[![License LGPLv3][LGPLv3 badge](https://img.shields.io/github/license/paxtibi/paxjson.svg)][LGPLv3]
+![License LGPLv3][LGPLv3 badge]
 
 The current version of this project is licensed under LGPLv3
 
@@ -39,5 +39,4 @@ Translate a string in Pascal case. eg "PascalCase".
 Translate a string into "selector case". css libraries like Bootstrap.css use "-" to separate individual words. eg "selector-case".
 
 
-[LGPLv3 badge]: https://img.shields.io/:license-LGPLv3-blue.svg
 [LGPLv3 badge]: https://img.shields.io/:license-LGPLv3-blue.svg
