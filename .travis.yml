@@ -19,8 +19,7 @@ before_install:
   # Start virtual display server
   - Xvfb $DISPLAY &
   - chmod +x ./ci/travis.install.py
-  - chmod +x ./ci/travis.compile.py
-
+  
 install:
   - ./ci/travis.install.py
 
