@@ -11,7 +11,7 @@ OS_PMAN={'linux': 'sudo apt-get'}[OS_NAME]
 
 LAZ_TMP_DIR=os.environ.get('LAZ_TMP_DIR') or 'lazarus_tmp'
 LAZ_REL_DEF=os.environ.get('LAZ_REL_DEF') or {'linux':'amd64', 'wine':'32'}
-LAZ_BIN_SRC=os.environ.get('LAZ_BIN_SRC') or 'http://mirrors.iwi.me/lazarus/releases/%(target)s/Lazarus%%20%(version)s'
+LAZ_BIN_SRC=os.environ.get('LAZ_BIN_SRC') or 'https://sourceforge.net/projects/lazarus/files/%(target)s/Lazarus%%20%(version)s'
 LAZ_BIN_TGT=os.environ.get('LAZ_BIN_TGT') or {
     'linux':           'Lazarus%%20Linux%%20%(release)s%%20DEB',
     'wine':            'Lazarus%%20Windows%%20%(release)s%%20bits'
