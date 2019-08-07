@@ -1,6 +1,3 @@
-# Part of `travis-lazarus` (https://github.com/nielsAD/travis-lazarus)
-# License: MIT
-
 language: generic
 sudo: required
 dist: trusty
@@ -11,24 +8,18 @@ os:
 env:
   global:
     - DISPLAY=:99.0
-  matrix:
-    - LAZ_VER=2.0.4 LAZ_ENV=linux LAZ_OPT="--os=linux --cpu=x86_64"
 
 before_install:
-  # Start virtual display server
   - Xvfb $DISPLAY &
-  - chmod +x ./ci/travis.install.py
-  
-#install:
-#  - ./ci/travis.install.py
-
-script:
   - wget https://netix.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%201.8.4/fpc-src_3.0.4-2_amd64.deb  
   - wget https://kent.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%201.8.4/fpc_3.0.4-3_amd64.deb
   - wget https://netix.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%201.8.4/lazarus-project_1.8.4-0_amd64.deb
+install:
   - sudo dpkg -i fpc_3.0.4-3_amd64.deb
   - sudo dpkg -i fpc-src_3.0.4-2_amd64.deb
   - sudo dpkg -i lazarus-project_1.8.4-0_amd64.deb
+  
+script:
   - lazbuild pck/paxjson_package.lpk
   - lazbuild pck/tests.lpr
   - lazbuild demo/pck/jsonDemo.lpr
