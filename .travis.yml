@@ -23,7 +23,7 @@ before_install:
 #  - ./ci/travis.install.py
 
 script:
-  - sudo apt-get install lazarus
+  - sudo apt-get install lazarus-2
   - lazbuild pck/paxjson_package.lpk
   - lazbuild pck/tests.lpr
   - lazbuild demo/pck/jsonDemo.lpr
