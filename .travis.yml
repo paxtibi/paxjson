@@ -23,17 +23,9 @@ before_install:
 #  - ./ci/travis.install.py
 
 script:
-  # download deb packages from:
-  # https://sourceforge.net/projects/lazarus/files/Lazarus%20Linux%20amd64%20DEB/Lazarus%201.8.4/
-
-# for example:
-
- -  wget https://netix.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%201.8.4/fpc-src_3.0.4-2_amd64.deb
- -  wget https://kent.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%201.8.4/fpc_3.0.4-3_amd64.deb
- -  wget https://netix.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%201.8.4/lazarus-project_1.8.4-0_amd64.deb
-
-# install deb packages
-
+  - wget https://netix.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%201.8.4/fpc-src_3.0.4-2_amd64.deb  
+  - wget https://kent.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%201.8.4/fpc_3.0.4-3_amd64.deb
+  - wget https://netix.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%201.8.4/lazarus-project_1.8.4-0_amd64.deb
   - sudo dpkg -i fpc_3.0.4-3_amd64.deb
   - sudo dpkg -i fpc-src_3.0.4-2_amd64.deb
   - sudo dpkg -i lazarus-project_1.8.4-0_amd64.deb
