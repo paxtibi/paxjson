@@ -17,11 +17,9 @@ before_install:
   - wget https://netcologne.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%202.0.4/lazarus-project_2.0.4-0_amd64.deb
 install:
   - sudo apt-get install libgtk2.0-dev
-  - sudo dpkg -i fpc-laz_3.0.4-1_amd64.deb
-  - sudo dpkg -i fpc-src_3.0.4-2_amd64.deb
-  - sudo dpkg -i lazarus-project_2.0.0-0_amd64.deb
-  
-script:
+  - sudo dpkg -i*.deb
+
+  script:
   - lazbuild pck/paxjson_package.lpk
   - lazbuild pck/tests.lpr
   - lazbuild demo/pck/jsonDemo.lpr
