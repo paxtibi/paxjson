@@ -11,13 +11,13 @@ env:
 
 before_install:
   - Xvfb $DISPLAY &
-  - wget https://netix.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%201.8.4/fpc-src_3.0.4-2_amd64.deb  
-  - wget https://kent.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%201.8.4/fpc_3.0.4-3_amd64.deb
-  - wget https://netix.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%201.8.4/lazarus-project_1.8.4-0_amd64.deb
+  - wget http://kent.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%202.0.2/fpc-laz_3.0.4-1_amd64.deb
+  - wget http://kent.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%202.0.2/fpc-src_3.0.4-2_amd64.deb
+  - wget http://kent.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%202.0.2/lazarus-project_2.0.2-0_amd64.deb
 install:
-  - sudo dpkg -i fpc_3.0.4-3_amd64.deb
   - sudo dpkg -i fpc-src_3.0.4-2_amd64.deb
-  - sudo dpkg -i lazarus-project_1.8.4-0_amd64.deb
+  - sudo dpkg -i fpc-laz_3.0.4-1_amd64.deb
+  - sudo dpkg -i lazarus-project_2.0.2-0_amd64.deb
   
 script:
   - lazbuild pck/paxjson_package.lpk
