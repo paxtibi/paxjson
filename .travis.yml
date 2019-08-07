@@ -15,8 +15,8 @@ before_install:
   - wget http://kent.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%202.0.2/fpc-src_3.0.4-2_amd64.deb
   - wget http://kent.dl.sourceforge.net/project/lazarus/Lazarus%20Linux%20amd64%20DEB/Lazarus%202.0.2/lazarus-project_2.0.2-0_amd64.deb
 install:
-  - sudo dpkg -i fpc-src_3.0.4-2_amd64.deb
   - sudo dpkg -i fpc-laz_3.0.4-1_amd64.deb
+  - sudo dpkg -i fpc-src_3.0.4-2_amd64.deb
   - sudo dpkg -i lazarus-project_2.0.2-0_amd64.deb
   
 script:
