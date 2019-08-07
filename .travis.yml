@@ -19,7 +19,7 @@ install:
   - sudo apt-get install libgtk2.0-dev
   - sudo dpkg -i *.deb
 
-  script:
+script:
   - lazbuild pck/paxjson_package.lpk
   - lazbuild pck/tests.lpr
   - lazbuild demo/pck/jsonDemo.lpr
