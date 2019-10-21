@@ -2,7 +2,7 @@
 <CONFIG>
   <ProjectSession>
     <PathDelim Value="\"/>
-    <Version Value="10"/>
+    <Version Value="11"/>
     <BuildModes Active="Default"/>
     <Units Count="24">
       <Unit0>
@@ -15,12 +15,10 @@
       <Unit1>
         <Filename Value="..\src\omtest.pas"/>
         <IsPartOfProject Value="True"/>
-        <IsVisibleTab Value="True"/>
-        <EditorIndex Value="1"/>
-        <TopLine Value="267"/>
-        <CursorPos X="96" Y="283"/>
+        <EditorIndex Value="-1"/>
+        <TopLine Value="238"/>
+        <CursorPos X="34" Y="288"/>
         <UsageCount Value="70"/>
-        <Loaded Value="True"/>
       </Unit1>
       <Unit2>
         <Filename Value="..\src\demoapp.pas"/>
@@ -68,8 +66,9 @@
       </Unit7>
       <Unit8>
         <Filename Value="..\..\src\paxjs.pas"/>
-        <TopLine Value="218"/>
-        <CursorPos X="51" Y="284"/>
+        <IsVisibleTab Value="True"/>
+        <TopLine Value="140"/>
+        <CursorPos X="40" Y="235"/>
         <UsageCount Value="28"/>
         <Loaded Value="True"/>
       </Unit8>
@@ -177,68 +176,44 @@
         <UsageCount Value="10"/>
       </Unit23>
     </Units>
-    <JumpHistory Count="15" HistoryIndex="14">
+    <JumpHistory Count="8" HistoryIndex="7">
       <Position1>
-        <Filename Value="..\src\omtest.pas"/>
-        <Caret Line="84" Column="66" TopLine="68"/>
+        <Filename Value="..\..\src\paxjs.pas"/>
+        <Caret Line="317" Column="7" TopLine="303"/>
       </Position1>
       <Position2>
-        <Filename Value="..\src\omtest.pas"/>
-        <Caret Line="185" TopLine="181"/>
+        <Filename Value="..\..\src\paxjs.pas"/>
+        <Caret Line="314" TopLine="303"/>
       </Position2>
       <Position3>
         <Filename Value="..\..\src\paxjs.pas"/>
-        <Caret Line="317" Column="7" TopLine="303"/>
+        <Caret Line="315" TopLine="303"/>
       </Position3>
       <Position4>
-        <Filename Value="..\src\omtest.pas"/>
-        <Caret Line="80" Column="24" TopLine="65"/>
+        <Filename Value="..\..\src\paxjs.pas"/>
+        <Caret Line="316" Column="41" TopLine="303"/>
       </Position4>
       <Position5>
-        <Filename Value="..\src\omtest.pas"/>
-        <Caret Line="196" Column="21" TopLine="194"/>
+        <Filename Value="..\..\src\paxjs.pas"/>
+        <Caret Line="313" Column="34" TopLine="303"/>
       </Position5>
       <Position6>
-        <Filename Value="..\src\omtest.pas"/>
-        <Caret Line="81" Column="34" TopLine="68"/>
+        <Filename Value="..\..\src\paxjs.pas"/>
+        <Caret Line="315" TopLine="303"/>
       </Position6>
       <Position7>
-        <Filename Value="..\src\omtest.pas"/>
-        <Caret Line="202" Column="24" TopLine="200"/>
+        <Filename Value="..\..\src\paxjs.pas"/>
+        <Caret Line="316" TopLine="303"/>
       </Position7>
       <Position8>
         <Filename Value="..\..\src\paxjs.pas"/>
-        <Caret Line="314" TopLine="303"/>
-      </Position8>
-      <Position9>
-        <Filename Value="..\..\src\paxjs.pas"/>
-        <Caret Line="315" TopLine="303"/>
-      </Position9>
-      <Position10>
-        <Filename Value="..\..\src\paxjs.pas"/>
-        <Caret Line="316" Column="41" TopLine="303"/>
-      </Position10>
-      <Position11>
-        <Filename Value="..\..\src\paxjs.pas"/>
-        <Caret Line="313" Column="34" TopLine="303"/>
-      </Position11>
-      <Position12>
-        <Filename Value="..\..\src\paxjs.pas"/>
-        <Caret Line="315" TopLine="303"/>
-      </Position12>
-      <Position13>
-        <Filename Value="..\..\src\paxjs.pas"/>
-        <Caret Line="316" TopLine="303"/>
-      </Position13>
-      <Position14>
-        <Filename Value="..\..\src\paxjs.pas"/>
         <Caret Line="132" Column="15" TopLine="120"/>
-      </Position14>
-      <Position15>
-        <Filename Value="..\src\omtest.pas"/>
-        <Caret Line="259" Column="26" TopLine="242"/>
-      </Position15>
+      </Position8>
     </JumpHistory>
+    <RunParams>
+      <FormatVersion Value="2"/>
+      <Modes Count="0" ActiveMode="default"/>
+    </RunParams>
   </ProjectSession>
   <Debugging>
     <Watches Count="3">

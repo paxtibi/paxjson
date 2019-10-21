@@ -97,7 +97,7 @@ begin
   begin
     for h in handlers do
     begin
-      if h.stringify(ffactory.getInstance(IInterface(aObject[idx])), nil, childNode) then
+      if h.stringify(ffactory.getInstance(aObject[idx]), nil, childNode) then
         break;
     end;
     if childNode <> nil then
