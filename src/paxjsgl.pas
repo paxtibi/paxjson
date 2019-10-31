@@ -61,6 +61,7 @@ var
   handlers: THandlerList;
   h: TJsonTypeHandler;
   childNode: TJSONData;
+  obj : TObject;
 begin
   getHandlers(tkClass, handlers);
   for idx := 0 to arrayNode.Count - 1 do
@@ -69,12 +70,17 @@ begin
     item := aItemType(ffactory.createInstance);
     for h in handlers do
     begin
-      if h.parse(ffactory.getInstance(item), nil, childNode) then
-      begin
-        aObject.Add(item);
-        break;
+      try
+        obj:=  ffactory.getInstance(item);
+        if h.parse(obj, nil, childNode) then
+        begin
+          aObject.Add(item);
+          break;
+        end;
+      except
       end;
     end;
+
   end;
   handlers.Free;
 end;
@@ -183,7 +189,11 @@ begin
     begin
       if h.parse(item, nil, childNode) then
       begin
+{$ifdef Darwin}
+        aObject.Add(@item);
+{$else}
         aObject.Add(item);
+{$endif}
         break;
       end;
     end;

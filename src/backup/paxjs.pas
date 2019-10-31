@@ -145,11 +145,87 @@ procedure getHandlers(typeKind: TTypeKinds; out handlers: THandlerList);
 function DateToISO8601(DateTime: TDateTime): string;
 function ISO8601ToDate(DateTime: string): TDateTime;
 
+function isNull(node: TJSONData): boolean;
+function nvl(node: TJSONData; defaultValue: boolean): boolean;
+function nvl(node: TJSONData; defaultValue: string): string;
+function nvl(node: TJSONData; defaultValue: int64): int64;
+
 
 implementation
 
 uses
   jsonparser, RegExpr, Math{, paxlog};
+
+
+function isNull(node: TJSONData): boolean;
+begin
+  Result := False;
+  if (node = nil) or (node.IsNull) then
+    Result := True;
+end;
+
+function nvl(node: TJSONData; defaultValue: string): string;
+begin
+  try
+    Result := defaultValue;
+    if node = nil then
+      exit;
+    if node.isNull then
+      exit;
+    Result := node.AsString;
+  except
+    on e: Exception do
+      raise e;
+  end;
+end;
+
+function nvl(node: TJSONData; defaultValue: int64): int64;
+begin
+  try
+    Result := defaultValue;
+    if node = nil then
+      exit;
+    if node.isNull then
+      exit;
+    Result := node.AsInt64;
+  except
+    on e: Exception do
+      raise e;
+  end;
+end;
+
+
+function nvl(node: TJSONData; defaultValue: extended): extended;
+begin
+  try
+    Result := defaultValue;
+    if node = nil then
+      exit;
+    if node.isNull then
+      exit;
+    Result := node.AsFloat;
+  except
+    on e: Exception do
+      raise e;
+  end;
+end;
+
+
+function nvl(node: TJSONData; defaultValue: boolean): boolean;
+begin
+  try
+    Result := defaultValue;
+    if node = nil then
+      exit;
+    if node.isNull then
+      exit;
+    Result := node.AsBoolean;
+  except
+    on e: Exception do
+      raise e;
+  end;
+end;
+
 
 // from fpIndexer
 function DateToISO8601(DateTime: TDateTime): string;
@@ -1027,7 +1103,6 @@ var
   pname: string;
   childNode: TJSONData;
 begin
-  //TLogLog.GetLogger('JSON').Enter(self, 'parseProperties');
   Count := GetPropList(AObject.ClassInfo, tkAny, nil);
   Size  := Count * SizeOf(Pointer);
   GetMem(PList, Size);
@@ -1035,7 +1110,6 @@ begin
   try
     for idx := 0 to Count - 1 do
     begin
-      //TLogLog.GetLogger('JSON').Trace(PList^[idx]^.Name + '(' + PList^[idx]^.PropType^.Name + ')');
       pname     := PList^[idx]^.Name;
       childNode := TJSONObject(node).Find(pname);
       if childNode = nil then
@@ -1072,7 +1146,6 @@ begin
   finally
     FreeMem(PList);
   end;
-  //TLogLog.GetLogger('JSON').Leave(self, 'parseProperties');
 end;
 
 function TJSONObjectTypeHandler.stringifyPropertyAllowed(AObject: TObject; info: PPropInfo): boolean;
@@ -1090,7 +1163,6 @@ var
   Size: integer;
   childNode: TJSONData;
 begin
-  //TLogLog.GetLogger('JSON').Enter(self, 'stringifyPropertyList');
   Result := True;
   Count  := GetPropList(AObject.ClassInfo, tkAny, nil);
   Size   := Count * SizeOf(Pointer);
@@ -1099,10 +1171,8 @@ begin
   try
     for idx := 0 to Count - 1 do
     begin
-      //TLogLog.GetLogger('JSON').Trace('allowed?' + PList^[idx]^.Name);
       if stringifyPropertyAllowed(AObject, PList^[idx]) then
       begin
-        //TLogLog.GetLogger('JSON').Trace('allowed!' + PList^[idx]^.Name);
         try
           getHandlers(PList^[idx]^.PropType^.Kind, handlers);
           for h in handlers do
@@ -1121,7 +1191,6 @@ begin
   finally
     FreeMem(PList);
   end;
-  //TLogLog.GetLogger('JSON').Leave(self, 'stringifyPropertyList');
 end;
 
 function TJSONObjectTypeHandler.parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean;
@@ -1132,13 +1201,11 @@ var
   clz: TClass;
   factory: TFactory;
 begin
-  //TLogLog.GetLogger('JSON').Enter(self, 'parse');
   Result := False;
   if node = nil then
   begin
     exit;
   end;
-  //TLogLog.GetLogger('JSON').Trace(AObject.ClassName);
   if info = nil then
   begin
     parseProperties(AObject, node);
@@ -1146,7 +1213,6 @@ begin
   end
   else
   begin
-    //TLogLog.GetLogger('JSON').Trace(AObject.ClassName + '.' + Info^.Name);
     AnObject := GetObjectProp(AObject, Info^.Name);
     if anObject = nil then
     begin
@@ -1172,7 +1238,6 @@ begin
       handlers.Free;
     end;
   end;
-  //TLogLog.GetLogger('JSON').Leave(self, 'parse');
 end;
 
 function TJSONObjectTypeHandler.stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean;
@@ -1182,7 +1247,6 @@ var
   handlers: THandlerList;
   h: TJSONTypeHandler;
 begin
-  //TLogLog.GetLogger('JSON').Enter(self, 'stringify');
   Result := False;
   if AObject = nil then
   begin
@@ -1218,7 +1282,6 @@ begin
     end;
     Result := True;
   end;
-  //TLogLog.GetLogger('JSON').Leave(self, 'stringify');
 end;
 
 
