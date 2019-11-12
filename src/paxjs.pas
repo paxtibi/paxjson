@@ -157,7 +157,6 @@ implementation
 uses
   jsonparser, RegExpr, Math{, paxlog};
 
-
 function isNull(node: TJSONData): boolean;
 begin
   Result := False;
@@ -173,7 +172,12 @@ begin
       exit;
     if node.isNull then
       exit;
-    Result := node.AsString;
+    if (node is TJSONArray) then
+    begin
+      Result := node.FormatJSON([], 0);
+    end
+    else
+      Result := node.AsString;
   except
     on e: Exception do
       raise e;
@@ -194,7 +198,6 @@ begin
       raise e;
   end;
 end;
-
 
 function nvl(node: TJSONData; defaultValue: extended): extended;
 begin
