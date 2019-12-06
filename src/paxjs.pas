@@ -447,8 +447,11 @@ end;
 { TJSONCustomFloatNumber }
 
 function TJSONCustomFloatNumber.GetAsString: TJSONStringType;
+var fs: TFormatSettings;
 begin
-  Result := FloatToStr(Value);
+  fs.DecimalSeparator:='.';
+  fs.ThousandSeparator:=',';
+  Result := FloatToStr(extended(Value), fs);
 end;
 
 { TJSONBooleanTypeHandle }
