@@ -1,5 +1,6 @@
 unit paxjs;
 
+{$D+}
 {$mode objfpc}{$H+}
 
 interface
@@ -413,7 +414,6 @@ var
   holder: TJSONTypeHandlerHolder;
   idx: integer;
 begin
-  //TLogLogger.GetLogger('JSON').Enter('getHandlers(' + GetEnumName(TypeInfo(TTypeKind), Ord(typeKind)) + ')');
   handlers := THandlerList.Create(False);
   for idx := Registry.Count - 1 downto 0 do
   begin
@@ -423,7 +423,6 @@ begin
       handlers.add(holder.Handler);
     end;
   end;
-  //TLogLogger.GetLogger('JSON').Leave('getHandlers(' + GetEnumName(TypeInfo(TTypeKind), Ord(typeKind)) + ')');
 end;
 
 procedure getHandlers(typeKind: TTypeKinds; out handlers: THandlerList);
@@ -431,7 +430,6 @@ var
   holder: TJSONTypeHandlerHolder;
   idx: integer;
 begin
-  //TLogLogger.GetLogger('JSON').Enter('getHandlers');
   handlers := THandlerList.Create(False);
   for idx := Registry.Count - 1 downto 0 do
   begin
@@ -441,7 +439,6 @@ begin
       handlers.add(holder.Handler);
     end;
   end;
-  //TLogLogger.GetLogger('JSON').Leave('getHandlers');
 end;
 
 { TJSONCustomFloatNumber }
@@ -458,7 +455,12 @@ begin
   Result := False;
   if (info^.PropType^.Kind = tkBool) and (node <> nil) then
   begin
-    SetOrdProp(AObject, Info^.Name, ifThen(node.AsBoolean, 1, 0));
+    try
+      SetOrdProp(AObject, Info^.Name, ifThen(node.AsBoolean, 1, 0));
+    except
+      on  e: Exception do
+        raise Exception.CreateFmt('on parse %s, error %s', [Info^.Name, e.Message]);
+    end;
     Result := True;
   end;
 end;
@@ -492,16 +494,21 @@ begin
   end;
   if (Info <> nil) then
   begin
-    if (Info^.PropType^.Kind = tkClass) and (UpperCase(Info^.PropType^.Name) = UpperCase('TStringList')) then
-    begin
-      target := GetObjectProp(AObject, Info);
-      if target = nil then
+    try
+      if (Info^.PropType^.Kind = tkClass) and (UpperCase(Info^.PropType^.Name) = UpperCase('TStringList')) then
       begin
-        target := TStringList.Create;
+        target := GetObjectProp(AObject, Info);
+        if target = nil then
+        begin
+          target := TStringList.Create;
+        end;
+        TStringList(target).Text := node.AsString;
+        SetObjectProp(AObject, Info, target);
+        Result := True;
       end;
-      TStringList(target).Text := node.AsString;
-      SetObjectProp(AObject, Info, target);
-      Result := True;
+    except
+      on  e: Exception do
+        raise Exception.CreateFmt('on parse %s, error %s', [Info^.Name, e.Message]);
     end;
   end
   else
@@ -639,10 +646,8 @@ var
   h: TJsonTypeHandler;
   collectionClassName, itemClassName: string;
 begin
-  //TLogLogger.GetLogger('JSON').Enter(self, 'parseCollection');
   collectionClassName := ACollection.ClassName;
   itemClassName := ACollection.ItemClass.ClassName;
-  //TLogLogger.GetLogger('JSON').Trace(collectionClassName + '(' + itemClassName + ')');
   try
     ACollection.Clear;
     getHandlers(tkClass, handlers);
@@ -664,7 +669,6 @@ begin
   finally
     handlers.Free;
   end;
-  //TLogLogger.GetLogger('JSON').Leave(self, 'parseCollection');
 end;
 
 function TJSONCollectionTypeHandle.stringifyCollection(ACollection: TCollection; out Res: TJSONData): boolean;
@@ -746,17 +750,12 @@ begin
   Result := False;
   if (Info = nil) and (AObject is TCollection) then
   begin
-    //TLogLogger.GetLogger('JSON').Enter(self, 'parse');
-    //TLogLogger.GetLogger('JSON').Trace(AObject.ClassName);
     parseCollection(AObject as TCollection, node as TJSONArray);
     Result := True;
-    //TLogLogger.GetLogger('JSON').Leave(self, 'parse');
   end
   else
   if (Info <> nil) and (AObject is TCollection) and (Info^.PropType^.Kind in [tkClass, tkObject]) then
   begin
-    //TLogLogger.GetLogger('JSON').Enter(self, 'parse');
-    //TLogLogger.GetLogger('JSON').Trace(AObject.ClassName + '.' + Info^.PropType^.Name);
     clz := GetJSONClass(Info^.PropType^.Name);
     if clz.InheritsFrom(TCollection) then
     begin
@@ -764,7 +763,6 @@ begin
       parseCollection(aCollection, node as TJSONArray);
       Result := True;
     end;
-    //TLogLogger.GetLogger('JSON').Leave(self, 'parse');
   end;
 end;
 
@@ -774,7 +772,6 @@ var
   aCollection: TCollection;
 begin
   Result := False;
-  //TLogLogger.GetLogger('JSON').Enter(self, 'stringify');
   if AObject <> nil then
   begin
     if (Info = nil) and (AObject is TCollection) then
@@ -794,7 +791,6 @@ begin
       end;
     end;
   end;
-  //TLogLogger.GetLogger('JSON').Leave(self, 'stringify');
 end;
 
 { TJSONDynArrayIntegerTypeHandle }
@@ -810,25 +806,30 @@ begin
   Result := False;
   if (Info^.PropType^.Kind = tkDynArray) and (comparetext(Info^.PropType^.Name, 'TDynIntegerArray') = 0) then
   begin
-    if node <> nil then
-    begin
-      SetLength(values, TJSONArray(node).Count);
-      for idx := 0 to TJSONArray(node).Count - 1 do
+    try
+      if node <> nil then
       begin
-        values[idx] := TJSONArray(node)[idx].AsInteger;
+        SetLength(values, TJSONArray(node).Count);
+        for idx := 0 to TJSONArray(node).Count - 1 do
+        begin
+          values[idx] := TJSONArray(node)[idx].AsInteger;
+        end;
+      end
+      else
+      begin
+        SetLength(values, 0);
       end;
-    end
-    else
-    begin
-      SetLength(values, 0);
+      if Info^.SetProc <> nil then
+      begin
+        m.Code := Info^.SetProc;
+        m.Data := AObject;
+        TSetter(m)(values);
+      end;
+      Result := True;
+    except
+      on  e: Exception do
+        raise Exception.CreateFmt('on parse %s, error %s', [Info^.Name, e.Message]);
     end;
-    if Info^.SetProc <> nil then
-    begin
-      m.Code := Info^.SetProc;
-      m.Data := AObject;
-      TSetter(m)(values);
-    end;
-    Result := True;
   end;
 end;
 
@@ -889,7 +890,12 @@ begin
   Result := False;
   if (info^.PropType^.Kind in [tkWString]) and (node <> nil) then
   begin
-    SetWideStrProp(AObject, Info^.Name, node.AsString);
+    try
+      SetWideStrProp(AObject, Info^.Name, node.AsString);
+    except
+      on  e: Exception do
+        raise Exception.CreateFmt('on parse %s, error %s', [Info^.Name, e.Message]);
+    end;
     Result := True;
   end;
 end;
@@ -942,23 +948,28 @@ begin
   Result := False;
   if (Info^.PropType^.Kind = tkDynArray) and (Info^.PropType^.Name = 'TStringArray') then
   begin
-    if node <> nil then
-    begin
-      SetLength(values, TJSONArray(node).Count);
-      for idx := 0 to TJSONArray(node).Count - 1 do
+    try
+      if node <> nil then
       begin
-        values[idx] := TJSONArray(node)[idx].AsString;
+        SetLength(values, TJSONArray(node).Count);
+        for idx := 0 to TJSONArray(node).Count - 1 do
+        begin
+          values[idx] := TJSONArray(node)[idx].AsString;
+        end;
+      end
+      else
+      begin
+        SetLength(values, 0);
       end;
-    end
-    else
-    begin
-      SetLength(values, 0);
-    end;
-    if Info^.SetProc <> nil then
-    begin
-      m.Code := Info^.SetProc;
-      m.Data := AObject;
-      TSetter(m)(values);
+      if Info^.SetProc <> nil then
+      begin
+        m.Code := Info^.SetProc;
+        m.Data := AObject;
+        TSetter(m)(values);
+      end;
+    except
+      on  e: Exception do
+        raise Exception.CreateFmt('on parse %s, error %s', [Info^.Name, e.Message]);
     end;
     Result := True;
   end;
@@ -1021,13 +1032,23 @@ begin
   Result := False;
   if (info^.PropType^.Kind = tkFloat) and (info^.PropType^.Name = 'TDateTime') and (node <> nil) then
   begin
-    SetFloatProp(AObject, Info^.Name, ISO8601ToDate(node.AsString));
+    try
+      SetFloatProp(AObject, Info^.Name, ISO8601ToDate(node.AsString));
+    except
+      on  e: Exception do
+        raise Exception.CreateFmt('on parse %s, error %s', [Info^.Name, e.Message]);
+    end;
     Result := True;
   end
   else
   if (info^.PropType^.Kind = tkFloat) and (node <> nil) then
   begin
-    SetFloatProp(AObject, Info^.Name, node.AsFloat);
+    try
+      SetFloatProp(AObject, Info^.Name, node.AsFloat);
+    except
+      on  e: Exception do
+        raise Exception.CreateFmt('on parse %s, error %s', [Info^.Name, e.Message]);
+    end;
     Result := True;
   end;
 end;
@@ -1056,7 +1077,12 @@ begin
   Result := False;
   if (info^.PropType^.Kind = tkInteger) and (node <> nil) then
   begin
-    SetOrdProp(AObject, Info^.Name, node.AsInteger);
+    try
+      SetOrdProp(AObject, Info^.Name, node.AsInteger);
+    except
+      on  e: Exception do
+        raise Exception.CreateFmt('on parse %s, error %s', [Info^.Name, e.Message]);
+    end;
     Result := True;
   end;
 end;
@@ -1078,7 +1104,12 @@ begin
   Result := False;
   if (info^.PropType^.Kind in [tkString, tkAString]) and (node <> nil) then
   begin
-    SetStrProp(AObject, Info^.Name, node.AsString);
+    try
+      SetStrProp(AObject, Info^.Name, node.AsString);
+    except
+      on  e: Exception do
+        raise Exception.CreateFmt('on parse %s, error %s', [Info^.Name, e.Message]);
+    end;
     Result := True;
   end;
 end;
@@ -1131,15 +1162,20 @@ begin
         pname     := pascalCase(PList^[idx]^.Name);
         childNode := TJSONObject(node).Find(pname);
       end;
-      if childNode <> nil then
+      if (childNode <> nil) and (not childNode.IsNull) then
       begin
         try
           getHandlers(PList^[idx]^.PropType^.Kind, handlers);
           for h in handlers do
           begin
-            if h.parse(AObject, PList^[idx], childNode) then
-            begin
-              break;
+            try
+              if h.parse(AObject, PList^[idx], childNode) then
+              begin
+                break;
+              end;
+            except
+              on e: Exception do
+                raise Exception.CreateFmt('on parse %s, error %s', [PName, e.Message]);
             end;
           end;
         finally
@@ -1324,7 +1360,6 @@ var
   handlers: THandlerList;
   h: TJsonTypeHandler;
 begin
-  //TLogLog.GetLogger('JSON').Enter(self, 'parse');
   jsonData := GetJSON(Source, True);
   try
     factory := GetJSONFactory(clz.ClassName);
@@ -1338,7 +1373,7 @@ begin
       raise EFactoryFailure.Create(clz.ClassName);
     end;
 
-    getHandlers(tkObject, handlers);
+    getHandlers(tkClass, handlers);
     for h in handlers do
     begin
       if h.parse(Result, nil, jsonData) then
@@ -1353,8 +1388,8 @@ begin
     begin
       Result.FreeInstance;
     end;
+    raise;
   end;
-  //TLogLog.GetLogger('JSON').Leave(self, 'parse');
 end;
 
 function TJSON3.stringify(const obj: TObject; FormatOptions: TFormatOptions): TJSONStringType;
@@ -1363,7 +1398,6 @@ var
   handlers: THandlerList;
   h: TJsonTypeHandler;
 begin
-  //TLogLog.GetLogger('JSON').Enter(self, 'stringify');
   try
     getHandlers(tkObject, handlers);
     for h in handlers do
@@ -1408,7 +1442,6 @@ begin
         end;
     end;
   end;
-  //TLogLog.GetLogger('JSON').Leave(self, 'stringify');
 end;
 
 

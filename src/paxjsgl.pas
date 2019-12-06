@@ -1,5 +1,5 @@
 unit paxjsgl;
-
+{$D+}
 {$mode objfpc}{$H+}
 
 interface
@@ -8,7 +8,6 @@ uses
   Classes, SysUtils, typinfo, paxjs, fgl, fpjson;
 
 type
-
   { TGenericListTypeHandle }
 
   generic TGenericListTypeHandle <aType: TFPSList; aItemType: TObject> = class(TJsonTypeHandler)
@@ -185,17 +184,22 @@ begin
   begin
     childNode := arrayNode[idx];
     item := factory(TCastContainedType) as TCastContainedType;
-    for h in handlers do
-    begin
-      if h.parse(item, nil, childNode) then
+    try
+      for h in handlers do
       begin
-{$ifdef Darwin}
-        aObject.Add(@item);
-{$else}
-        aObject.Add(item);
-{$endif}
-        break;
+        if h.parse(item, nil, childNode) then
+        begin
+  {$ifdef Darwin}
+          aObject.Add(@item);
+  {$else}
+          aObject.Add(item);
+  {$endif}
+          break;
+        end;
       end;
+    except
+      on e: Exception do
+        raise Exception.CreateFmt('on parse [%d], error %s', [idx, e.Message]);
     end;
   end;
   handlers.Free;
@@ -242,16 +246,19 @@ end;
 function TGenericListTypeHandle.parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean;
 var
   aList: aType;
+  aClassName : String;
 begin
   result := False;
-  if (Info = nil) and  (compareText(AObject.ClassName,TCastContainerType.className)=0) then
+  aClassName:= AObject.ClassName;
+  Writeln(aClassName);
+  if (Info = nil) and  (compareText(aClassName,TCastContainerType.className)=0) then
   begin
     parseType(TCastContainerType(AObject), node as TJSONArray);
     result := True;
   end
   else
   begin
-    if (Info <> nil) and (compareText(AObject.ClassName,TCastContainerType.className)=0) and (Info^.PropType^.Kind in [tkClass, tkObject]) then
+    if (Info <> nil) and (compareText(aClassName,TCastContainerType.className)=0) and (Info^.PropType^.Kind in [tkClass, tkObject]) then
     begin
       aList := TCastContainerType(GetObjectProp(AObject, Info));
       parseType(aList, node as TJSONArray);
