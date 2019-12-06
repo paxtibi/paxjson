@@ -158,6 +158,11 @@ implementation
 uses
   jsonparser, RegExpr, Math{, paxlog};
 
+
+var fs: TFormatSettings;
+
+
+
 function isNull(node: TJSONData): boolean;
 begin
   Result := False;
@@ -444,10 +449,7 @@ end;
 { TJSONCustomFloatNumber }
 
 function TJSONCustomFloatNumber.GetAsString: TJSONStringType;
-var fs: TFormatSettings;
 begin
-  fs.DecimalSeparator:='.';
-  fs.ThousandSeparator:=',';
   Result := FloatToStr(extended(Value), fs);
 end;
 
@@ -1450,6 +1452,10 @@ end;
 
 initialization
   InitCriticalSection(ClassCS);
+
+  fs.DecimalSeparator:='.';
+  fs.ThousandSeparator:=',';
+
   JSON     := TJSON3.Create;
   Registry := TJSONTypeRegistry.Create();
 
@@ -1471,6 +1477,7 @@ initialization
   RegisterJsonTypeHandler(tkObject, TJSONCollectionTypeHandle.Create);
   RegisterJsonTypeHandler(tkClass, TJSONStringListTypeHandle.Create);
   RegisterJsonTypeHandler(tkObject, TJSONStringListTypeHandle.Create);
+
 
 
 finalization
