@@ -1143,6 +1143,7 @@ var
   pname: string;
   childNode: TJSONData;
 begin
+  if AObject = nil then exit;
   Count := GetPropList(AObject.ClassInfo, tkAny, nil);
   Size  := Count * SizeOf(Pointer);
   GetMem(PList, Size);
@@ -1247,7 +1248,7 @@ var
   factory: TFactory;
 begin
   Result := False;
-  if node = nil then
+  if (node = nil) or (node.IsNull) then
   begin
     exit;
   end;

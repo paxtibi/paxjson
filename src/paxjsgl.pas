@@ -1,5 +1,4 @@
 unit paxjsgl;
-{$D+}
 {$mode objfpc}{$H+}
 
 interface
@@ -56,24 +55,26 @@ implementation
 procedure TGenericInterfaceListTypeHandle.parseType(aObject: aType;  arrayNode: TJSONArray);
 var
   idx: integer;
-  item: aItemType;
   handlers: THandlerList;
+  outInterface : IInterface;
   h: TJsonTypeHandler;
   childNode: TJSONData;
   obj : TObject;
+  item : aItemType absolute outInterface;
 begin
+  if arrayNode.isNull then exit;
   getHandlers(tkClass, handlers);
   for idx := 0 to arrayNode.Count - 1 do
   begin
     childNode := arrayNode[idx];
-    item := aItemType(ffactory.createInstance);
+    outInterface := ffactory.createInstance;
     for h in handlers do
     begin
       try
         obj:=  ffactory.getInstance(item);
         if h.parse(obj, nil, childNode) then
         begin
-          aObject.Add(item);
+          aObject.Add( item );
           break;
         end;
       except
