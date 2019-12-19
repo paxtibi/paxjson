@@ -20,7 +20,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    function parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean; override;
+    function parse(const AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean; override;
     function stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean; override;
   end;
 
@@ -43,7 +43,7 @@ type
   public
     constructor Create;
     destructor Destroy; override;
-    function parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean; override;
+    function parse(const AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean; override;
     function stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean; override;
   end;
 
@@ -124,7 +124,8 @@ begin
   inherited Destroy;
 end;
 
-function TGenericInterfaceListTypeHandle.parse(AObject: TObject;  Info: PPropInfo; const node: TJSONData): boolean;
+function TGenericInterfaceListTypeHandle.parse(const AObject: TObject;
+  Info: PPropInfo; const node: TJSONData): boolean;
 var
   aList: aType;
 begin
@@ -184,17 +185,14 @@ begin
   for idx := 0 to arrayNode.Count - 1 do
   begin
     childNode := arrayNode[idx];
+    if childNode.IsNull then continue;
     item := factory(TCastContainedType) as TCastContainedType;
     try
       for h in handlers do
       begin
         if h.parse(item, nil, childNode) then
         begin
-  {$ifdef Darwin}
-          aObject.Add(@item);
-  {$else}
-          aObject.Add(item);
-  {$endif}
+          aObject.Add({$ifdef Darwin}@item{$else}item{$endif});
           break;
         end;
       end;
@@ -217,21 +215,20 @@ begin
   if AObject = nil then
   begin
     res := CreateJSON;
-  end else begin
-  Res := TJSONArray.Create;
-  getHandlers(tkClass, handlers);
-  for idx := 0 to TFPSList(aObject).count - 1 do
+  end else
   begin
-    item := TCastContainedType(aObject[idx]);
-    for h in handlers do
+    Res := TJSONArray.Create;
+    for idx := 0 to TFPSList(aObject).count - 1 do
     begin
-      if h.stringify(item, nil, childNode) then
-        break;
+      getHandlers(tkClass, handlers);
+      item := TCastContainedType(aObject[idx]);
+      for h in handlers do
+      begin
+        if h.stringify(item, nil, childNode) then break;
+      end;
+      if childNode <> nil then TJSONArray(res).Add(childNode);
+      handlers.Free;
     end;
-    if childNode <> nil then
-      TJSONArray(res).Add(childNode);
-  end;
-  handlers.Free;
   end;
 end;
 
@@ -244,14 +241,14 @@ begin
   inherited Destroy;
 end;
 
-function TGenericListTypeHandle.parse(AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean;
+function TGenericListTypeHandle.parse(const AObject: TObject; Info: PPropInfo;
+  const node: TJSONData): boolean;
 var
   aList: aType;
   aClassName : String;
 begin
   result := False;
   aClassName:= AObject.ClassName;
-  Writeln(aClassName);
   if (Info = nil) and  (compareText(aClassName,TCastContainerType.className)=0) then
   begin
     parseType(TCastContainerType(AObject), node as TJSONArray);
