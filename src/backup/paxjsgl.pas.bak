@@ -49,7 +49,6 @@ type
 
 implementation
 
-
 { TGenericInterfaceListTypeHandle }
 
 procedure TGenericInterfaceListTypeHandle.parseType(aObject: aType;  arrayNode: TJSONArray);
@@ -74,7 +73,7 @@ begin
         obj:=  ffactory.getInstance(item);
         if h.parse(obj, nil, childNode) then
         begin
-          aObject.Add({$ifdef darwin} @item{$else}item{$endif} );
+          aObject.Add( item );
           break;
         end;
       except
@@ -96,23 +95,20 @@ begin
   if AObject = nil then
   begin
     res := CreateJSON;
-  end
-  else
+  end else begin
+  Res := TJSONArray.Create;
+  getHandlers(tkClass, handlers);
+  for idx := 0 to TFPSList(aObject).count - 1 do
   begin
-    doLog(etDebug,AObject.ClassName);
-    Res := TJSONArray.Create;
-    getHandlers(tkClass, handlers);
-    for idx := 0 to TFPSList(aObject).count - 1 do
+    for h in handlers do
     begin
-      for h in handlers do
-      begin
-        if h.stringify(ffactory.getInstance(IInterface(aObject[idx])), nil, childNode) then
-          break;
-      end;
-      if childNode <> nil then
-        TJSONArray(res).Add(childNode);
+      if h.stringify(ffactory.getInstance(IInterface(aObject[idx])), nil, childNode) then
+        break;
     end;
-    handlers.Free;
+    if childNode <> nil then
+      TJSONArray(res).Add(childNode);
+  end;
+  handlers.Free;
   end;
 end;
 
@@ -156,7 +152,6 @@ begin
   result := False;
   if (CompareText(AObject.ClassName, TCastContainerType.ClassName)=0) then
   begin
-    doLog(etDebug,AObject.ClassName);
     if (Info = nil) then
     begin
       stringifyType(TCastContainerType(AObject), res);
@@ -196,9 +191,7 @@ begin
       begin
         if h.parse(item, nil, childNode) then
         begin
-          aObject.Add(
-          {$ifdef Darwin}@item{$else}item{$endif}
-          );
+          aObject.Add({$ifdef Darwin}@item{$else}item{$endif});
           break;
         end;
       end;
@@ -255,8 +248,6 @@ var
 begin
   result := False;
   aClassName:= AObject.ClassName;
-  doLog(etDebug, Format('parse check %s :: %s',[AObject.ClassName, TCastContainerType.ClassName]));
-
   if (Info = nil) and  (compareText(aClassName,TCastContainerType.className)=0) then
   begin
     parseType(TCastContainerType(AObject), node as TJSONArray);
@@ -278,7 +269,6 @@ var
   aList: aType;
 begin
   result := False;
-  doLog(etDebug, Format('%s.stringify check %s :: %s',[self.classname, AObject.ClassName,TCastContainerType.ClassName]));
   if (CompareText(AObject.ClassName, TCastContainerType.ClassName)=0) then
   begin
     if (Info = nil) then

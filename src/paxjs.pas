@@ -1,7 +1,7 @@
 unit paxjs;
 
-{$D+}
 {$mode objfpc}{$H+}
+{$D+}
 
 interface
 
@@ -161,11 +161,12 @@ function nvl(node: TJSONData; defaultValue: string): string;
 function nvl(node: TJSONData; defaultValue: int64): int64;
 function nvl(node: TJSONData; defaultValue: extended): extended;
 
+procedure doLog(eventType: TEventType; message: string);
 
 implementation
 
 uses
-  jsonparser, RegExpr, Math{, paxlog};
+  jsonparser, RegExpr, Math;
 
 var
   fs: TFormatSettings;
@@ -195,10 +196,10 @@ begin
       exit;
     if (node is TJSONArray) then
     begin
-      Result := node.FormatJSON([], 0);
+      Result := Trim(node.FormatJSON([], 0));
     end
     else
-      Result := node.AsString;
+      Result := Trim(node.AsString);
   except
     on e: Exception do
       raise e;
@@ -329,8 +330,8 @@ procedure RegisterJsonTypeHandler(aTypeKind: TTypeKind; aHandler: TJsonTypeHandl
 var
   holder: TJSONTypeHandlerHolder;
 begin
-  holder      := TJSONTypeHandlerHolder.Create;
-  holder.Kind := aTypeKind;
+  holder         := TJSONTypeHandlerHolder.Create;
+  holder.Kind    := aTypeKind;
   holder.Handler := aHandler;
   Registry.Add(holder);
 end;
@@ -343,11 +344,11 @@ begin
     EnterCriticalsection(ClassCS);
     while ClassList.IndexOfClass(AClass) = -1 do
     begin
-      if ClassList.IndexOfClass(AClass) > -1 then  //class alread registered!
+      if ClassList.IndexOfClass(AClass) > -1 then  //class already registered!
       begin
         exit;
       end;
-      cc := TClassContainer.Create;
+      cc          := TClassContainer.Create;
       cc.theClass := aClass;
       cc.theFactory := aFactory;
       ClassList.Add(cc);
@@ -473,7 +474,8 @@ begin
       begin
         SetOrdProp(AObject, Info^.Name, node.AsInt64);
         Result := True;
-      end;
+      end
+      else
       if (info^.PropType^.Kind = tkQWord) then
       begin
         SetOrdProp(AObject, Info^.Name, node.AsQWord);
@@ -703,7 +705,7 @@ var
   collectionClassName, itemClassName: string;
 begin
   collectionClassName := ACollection.ClassName;
-  itemClassName := ACollection.ItemClass.ClassName;
+  itemClassName       := ACollection.ItemClass.ClassName;
   try
     ACollection.Clear;
     getHandlers(tkClass, handlers);
@@ -1266,10 +1268,12 @@ var
   Size: integer;
   childNode: TJSONData;
 begin
+
   Result := True;
   Count  := GetPropList(AObject.ClassInfo, tkAny, nil);
   Size   := Count * SizeOf(Pointer);
   GetMem(PList, Size);
+  doLog(etDebug, AObject.ClassName);
   GetPropList(AObject.ClassInfo, tkAny, PList, True);
   try
     for idx := 0 to Count - 1 do
@@ -1280,6 +1284,7 @@ begin
           getHandlers(PList^[idx]^.PropType^.Kind, handlers);
           for h in handlers do
           begin
+            doLog(etDebug, Format(' stringif property %s (%s) -> %s', [PList^[idx]^.Name, GetEnumName(typeInfo(TTypeKind), Ord(PList^[idx]^.PropType^.Kind)), h.ClassName]));
             if h.stringify(AObject, PList^[idx], childNode) then
             begin
               TJSONObject(Res).Add(PList^[idx]^.Name, childNode);
@@ -1366,6 +1371,7 @@ begin
   end
   else
   begin
+    doLog(etDebug, Format('TJSONObjectTypeHandler.stringify check %s', [AObject.ClassName]));
     propObject := GetObjectProp(AObject, Info^.Name);
     if propObject <> nil then
     begin
@@ -1462,10 +1468,12 @@ var
   handlers: THandlerList;
   h: TJsonTypeHandler;
 begin
+  doLog(etDebug, Format('TJSON3.stringify %s', [obj.ClassName]));
   try
     getHandlers(tkObject, handlers);
     for h in handlers do
     begin
+      doLog(etDebug, Format('TJSON3.stringify ask to %s', [h.ClassName]));
       if h.stringify(obj, nil, jsonData) then
       begin
         break;
@@ -1477,6 +1485,7 @@ begin
       getHandlers(tkClass, handlers);
       for h in handlers do
       begin
+        doLog(etDebug, Format('TJSON3.stringify ask to %s', [h.ClassName]));
         if h.stringify(obj, nil, jsonData) then
         begin
           break;
@@ -1508,6 +1517,9 @@ begin
   end;
 end;
 
+
+var
+  idx: integer;
 
 initialization
   log := nil;
@@ -1541,7 +1553,10 @@ initialization
 
 finalization
   ClassList.Clear;
-  Registry.Clear;
+  for idx := Registry.Count - 1 downto 0 do
+  begin
+    Registry.Delete(idx);
+  end;
   ClassList.Free;
   Registry.Free;
   JSON.Free;
