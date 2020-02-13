@@ -99,7 +99,7 @@ begin
   end
   else
   begin
-    doLog(etDebug,AObject.ClassName);
+    LogDebug(AObject.ClassName);
     Res := TJSONArray.Create;
     getHandlers(tkClass, handlers);
     for idx := 0 to TFPSList(aObject).count - 1 do
@@ -156,7 +156,7 @@ begin
   result := False;
   if (CompareText(AObject.ClassName, TCastContainerType.ClassName)=0) then
   begin
-    doLog(etDebug,AObject.ClassName);
+    LogDebug(AObject.ClassName);
     if (Info = nil) then
     begin
       stringifyType(TCastContainerType(AObject), res);
@@ -255,7 +255,7 @@ var
 begin
   result := False;
   aClassName:= AObject.ClassName;
-  doLog(etDebug, Format('parse check %s :: %s',[AObject.ClassName, TCastContainerType.ClassName]));
+  LogDebug(Format('parse check %s :: %s',[AObject.ClassName, TCastContainerType.ClassName]));
 
   if (Info = nil) and  (compareText(aClassName,TCastContainerType.className)=0) then
   begin
@@ -278,7 +278,7 @@ var
   aList: aType;
 begin
   result := False;
-  doLog(etDebug, Format('%s.stringify check %s :: %s',[self.classname, AObject.ClassName,TCastContainerType.ClassName]));
+  LogDebug( Format('%s.stringify check %s :: %s',[self.classname, AObject.ClassName,TCastContainerType.ClassName]));
   if (CompareText(AObject.ClassName, TCastContainerType.ClassName)=0) then
   begin
     if (Info = nil) then

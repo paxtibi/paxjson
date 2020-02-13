@@ -6,10 +6,37 @@ unit paxjs;
 interface
 
 uses
-  Classes, SysUtils, typinfo, fpjson, fgl, eventlog;
+  Classes, SysUtils, typinfo, fpjson, fgl;
+
+const
+  AsCompactJSON = [foSingleLineArray, foSingleLineObject, foskipWhiteSpace];
+
+type
+  TJSONLoggingCategory = (
+    jetDebug = 1000,
+    jetInfo = 2000,
+    jetWarning = 3000,
+    jetError = 4000,
+    jetException = 5000
+    );
+
+  TJSONLoggingEvent = record
+    Category:  TJSONLoggingCategory;
+    Protocol:  RawByteString;
+    Message:   RawByteString;
+    ErrorCode: integer;
+    Error:     RawByteString;
+    Timestamp: TDateTime;
+
+  end;
+
+  IJSONLogListener = interface
+    ['{F734133B-649C-4BF7-A043-49F184007842}']
+    procedure LogEvent(Event: TJSONLoggingEvent);
+  end;
 
 var
-  Log: TEventLog;
+  Log: IJSONLogListener;
 
 //Date Format: http://es5.github.io/#x15.9.1.15
 
@@ -161,7 +188,11 @@ function nvl(node: TJSONData; defaultValue: string): string;
 function nvl(node: TJSONData; defaultValue: int64): int64;
 function nvl(node: TJSONData; defaultValue: extended): extended;
 
-procedure doLog(eventType: TEventType; message: string);
+procedure doLog(eventType: TJSONLoggingCategory; message: string);
+procedure LogInfo(message: string);
+procedure LogDebug(message: string);
+procedure LogError(message: string);
+procedure LogException(context: string; e: Exception);
 
 implementation
 
@@ -171,11 +202,53 @@ uses
 var
   fs: TFormatSettings;
 
-procedure doLog(eventType: TEventType; message: string);
+procedure LogInfo(message: string);
+begin
+  doLog(jetInfo, message);
+end;
+
+procedure LogDebug(message: string);
+begin
+  doLog(jetDebug, message);
+end;
+
+procedure LogError(message: string);
+begin
+  doLog(jetError, message);
+end;
+
+procedure LogException(context: string; e: Exception);
+var
+  I: integer;
+  Frames: PPointer;
+  Report: string;
+begin
+  Report := 'Program exception! ' + LineEnding + 'Stacktrace:' + LineEnding + LineEnding;
+  if E <> nil then
+  begin
+    Report := Report + 'Exception class: ' + E.ClassName + LineEnding + 'Message: ' + E.Message + LineEnding;
+  end;
+  Report := Report + BackTraceStrFunc(ExceptAddr);
+  Frames := ExceptFrames;
+  for I := 0 to ExceptFrameCount - 1 do
+    Report := Report + LineEnding + BackTraceStrFunc(Frames[I]);
+  LogError(context + LineEnding + Report);
+end;
+
+
+procedure doLog(eventType: TJSONLoggingCategory; message: string);
+var
+  event: TJSONLoggingEvent;
 begin
   if log <> nil then
   begin
-    log.Log(eventType, message);
+    event.Category  := eventType;
+    event.Message   := message;
+    event.Error     := '';
+    event.Error     := '';
+    event.ErrorCode := 0;
+    event.Timestamp := now;
+    log.LogEvent(event);
   end;
 end;
 
@@ -1164,7 +1237,7 @@ begin
   Result := False;
   if (info^.PropType^.Kind in [tkString, tkAString]) and (node <> nil) then
   begin
-    doLog(etInfo, Format('%s as String', [info^.Name]));
+    LogDebug(Format('%s as String', [info^.Name]));
     try
       Value := node.AsString;
       SetStrProp(AObject, Info^.Name, Value);
@@ -1228,7 +1301,7 @@ begin
       end;
       if (childNode <> nil) and (not childNode.IsNull) then
       begin
-        doLog(etInfo, PList^[idx]^.Name);
+        LogDebug(PList^[idx]^.Name);
         try
           getHandlers(PList^[idx]^.PropType^.Kind, handlers);
           for h in handlers do
@@ -1273,7 +1346,7 @@ begin
   Count  := GetPropList(AObject.ClassInfo, tkAny, nil);
   Size   := Count * SizeOf(Pointer);
   GetMem(PList, Size);
-  doLog(etDebug, AObject.ClassName);
+  LogDebug(AObject.ClassName);
   GetPropList(AObject.ClassInfo, tkAny, PList, True);
   try
     for idx := 0 to Count - 1 do
@@ -1284,7 +1357,7 @@ begin
           getHandlers(PList^[idx]^.PropType^.Kind, handlers);
           for h in handlers do
           begin
-            doLog(etDebug, Format(' stringif property %s (%s) -> %s', [PList^[idx]^.Name, GetEnumName(typeInfo(TTypeKind), Ord(PList^[idx]^.PropType^.Kind)), h.ClassName]));
+            LogDebug(Format(' stringif property %s (%s) -> %s', [PList^[idx]^.Name, GetEnumName(typeInfo(TTypeKind), Ord(PList^[idx]^.PropType^.Kind)), h.ClassName]));
             if h.stringify(AObject, PList^[idx], childNode) then
             begin
               TJSONObject(Res).Add(PList^[idx]^.Name, childNode);
@@ -1316,7 +1389,7 @@ begin
   end;
   if info = nil then
   begin
-    dolog(etInfo, Format('parse %s', [AObject.ClassName]));
+    LogDebug(Format('parse %s', [AObject.ClassName]));
     parseProperties(AObject, node);
     Result := True;
   end
@@ -1371,7 +1444,7 @@ begin
   end
   else
   begin
-    doLog(etDebug, Format('TJSONObjectTypeHandler.stringify check %s', [AObject.ClassName]));
+    LogDebug(Format('TJSONObjectTypeHandler.stringify check %s', [AObject.ClassName]));
     propObject := GetObjectProp(AObject, Info^.Name);
     if propObject <> nil then
     begin
@@ -1468,12 +1541,12 @@ var
   handlers: THandlerList;
   h: TJsonTypeHandler;
 begin
-  doLog(etDebug, Format('TJSON3.stringify %s', [obj.ClassName]));
+  LogDebug(Format('TJSON3.stringify %s', [obj.ClassName]));
   try
     getHandlers(tkObject, handlers);
     for h in handlers do
     begin
-      doLog(etDebug, Format('TJSON3.stringify ask to %s', [h.ClassName]));
+      LogDebug(Format('TJSON3.stringify ask to %s', [h.ClassName]));
       if h.stringify(obj, nil, jsonData) then
       begin
         break;
@@ -1485,7 +1558,7 @@ begin
       getHandlers(tkClass, handlers);
       for h in handlers do
       begin
-        doLog(etDebug, Format('TJSON3.stringify ask to %s', [h.ClassName]));
+        LogDebug(Format('TJSON3.stringify ask to %s', [h.ClassName]));
         if h.stringify(obj, nil, jsonData) then
         begin
           break;
@@ -1511,7 +1584,7 @@ begin
       on e: Exception do
         if isConsole then
         begin
-          dolog(etError, e.message);
+          LogError(e.message);
         end;
     end;
   end;
