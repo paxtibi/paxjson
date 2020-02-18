@@ -9,7 +9,7 @@ uses {$IFDEF UNIX} {$IFDEF UseCThreads}
   fpjson,
   jsonparser,
   jsonscanner,
-  CustApp { you can add units after this };
+  CustApp;
 
 type
   { TJSonSchema }
@@ -86,7 +86,7 @@ type
 var
   Application: TJSonSchema;
 begin
-  Application := TJSonSchema.Create(nil);
+  Application       := TJSonSchema.Create(nil);
   Application.Title := 'JSon Schema to pascal';
   Application.Run;
   Application.Free;

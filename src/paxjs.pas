@@ -27,7 +27,6 @@ type
     ErrorCode: integer;
     Error:     RawByteString;
     Timestamp: TDateTime;
-
   end;
 
   IJSONLogListener = interface

@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<CONFIG>
+  <Package Version="4">
+    <PathDelim Value="\"/>
+    <Name Value="paxjson_types_package"/>
+    <Type Value="RunAndDesignTime"/>
+    <CompilerOptions>
+      <Version Value="11"/>
+      <PathDelim Value="\"/>
+      <SearchPaths>
+        <OtherUnitFiles Value="..\src"/>
+        <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)\"/>
+      </SearchPaths>
+    </CompilerOptions>
+    <Files Count="33">
+      <Item1>
+        <Filename Value="..\src\AnsiStringJson.pas"/>
+        <UnitName Value="AnsiStringJson"/>
+      </Item1>
+      <Item2>
+        <Filename Value="..\src\BooleanJson.pas"/>
+        <UnitName Value="BooleanJson"/>
+      </Item2>
+      <Item3>
+        <Filename Value="..\src\ByteJson.pas"/>
+        <UnitName Value="ByteJson"/>
+      </Item3>
+      <Item4>
+        <Filename Value="..\src\CardinalJson.pas"/>
+        <UnitName Value="CardinalJson"/>
+      </Item4>
+      <Item5>
+        <Filename Value="..\src\CompJson.pas"/>
+        <UnitName Value="CompJson"/>
+      </Item5>
+      <Item6>
+        <Filename Value="..\src\CurrencyJson.pas"/>
+        <UnitName Value="CurrencyJson"/>
+      </Item6>
+      <Item7>
+        <Filename Value="..\src\DoubleJson.pas"/>
+        <UnitName Value="DoubleJson"/>
+      </Item7>
+      <Item8>
+        <Filename Value="..\src\DWordJson.pas"/>
+        <UnitName Value="DWordJson"/>
+      </Item8>
+      <Item9>
+        <Filename Value="..\src\ExtendedJson.pas"/>
+        <UnitName Value="ExtendedJson"/>
+      </Item9>
+      <Item10>
+        <Filename Value="..\src\Int8Json.pas"/>
+        <UnitName Value="Int8Json"/>
+      </Item10>
+      <Item11>
+        <Filename Value="..\src\Int16Json.pas"/>
+        <UnitName Value="Int16Json"/>
+      </Item11>
+      <Item12>
+        <Filename Value="..\src\Int32Json.pas"/>
+        <UnitName Value="Int32Json"/>
+      </Item12>
+      <Item13>
+        <Filename Value="..\src\Int64Json.pas"/>
+        <UnitName Value="Int64Json"/>
+      </Item13>
+      <Item14>
+        <Filename Value="..\src\IntegerJson.pas"/>
+        <UnitName Value="IntegerJson"/>
+      </Item14>
+      <Item15>
+        <Filename Value="..\src\LongIntJson.pas"/>
+        <UnitName Value="LongIntJson"/>
+      </Item15>
+      <Item16>
+        <Filename Value="..\src\LongWordJson.pas"/>
+        <UnitName Value="LongWordJson"/>
+      </Item16>
+      <Item17>
+        <Filename Value="..\src\NativeIntJson.pas"/>
+        <UnitName Value="NativeIntJson"/>
+      </Item17>
+      <Item18>
+        <Filename Value="..\src\NativeUIntJson.pas"/>
+        <UnitName Value="NativeUIntJson"/>
+      </Item18>
+      <Item19>
+        <Filename Value="..\src\QWordJson.pas"/>
+        <UnitName Value="QWordJson"/>
+      </Item19>
+      <Item20>
+        <Filename Value="..\src\RawByteStringJson.pas"/>
+        <UnitName Value="RawByteStringJson"/>
+      </Item20>
+      <Item21>
+        <Filename Value="..\src\RealJson.pas"/>
+        <UnitName Value="RealJson"/>
+      </Item21>
+      <Item22>
+        <Filename Value="..\src\ShortIntJson.pas"/>
+        <UnitName Value="ShortIntJson"/>
+      </Item22>
+      <Item23>
+        <Filename Value="..\src\SingleJson.pas"/>
+        <UnitName Value="SingleJson"/>
+      </Item23>
+      <Item24>
+        <Filename Value="..\src\SmallIntJson.pas"/>
+        <UnitName Value="SmallIntJson"/>
+      </Item24>
+      <Item25>
+        <Filename Value="..\src\StringJson.pas"/>
+        <UnitName Value="StringJson"/>
+      </Item25>
+      <Item26>
+        <Filename Value="..\src\UInt8Json.pas"/>
+        <UnitName Value="UInt8Json"/>
+      </Item26>
+      <Item27>
+        <Filename Value="..\src\UInt16Json.pas"/>
+        <UnitName Value="UInt16Json"/>
+      </Item27>
+      <Item28>
+        <Filename Value="..\src\UInt32Json.pas"/>
+        <UnitName Value="UInt32Json"/>
+      </Item28>
+      <Item29>
+        <Filename Value="..\src\UInt64Json.pas"/>
+        <UnitName Value="UInt64Json"/>
+      </Item29>
+      <Item30>
+        <Filename Value="..\src\UnicodeStringJson.pas"/>
+        <UnitName Value="UnicodeStringJson"/>
+      </Item30>
+      <Item31>
+        <Filename Value="..\src\UTF8StringJson.pas"/>
+        <UnitName Value="UTF8StringJson"/>
+      </Item31>
+      <Item32>
+        <Filename Value="..\src\WideStringJson.pas"/>
+        <UnitName Value="WideStringJson"/>
+      </Item32>
+      <Item33>
+        <Filename Value="..\src\WordJson.pas"/>
+        <UnitName Value="WordJson"/>
+      </Item33>
+    </Files>
+    <RequiredPkgs Count="3">
+      <Item1>
+        <PackageName Value="paxtypes_package"/>
+      </Item1>
+      <Item2>
+        <PackageName Value="paxjson_package"/>
+      </Item2>
+      <Item3>
+        <PackageName Value="FCL"/>
+      </Item3>
+    </RequiredPkgs>
+    <UsageOptions>
+      <UnitPath Value="$(PkgOutDir)"/>
+    </UsageOptions>
+    <PublishOptions>
+      <Version Value="2"/>
+      <UseFileFilters Value="True"/>
+    </PublishOptions>
+  </Package>
+</CONFIG>
