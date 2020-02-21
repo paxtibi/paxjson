@@ -8,141 +8,141 @@
       <Version Value="11"/>
       <PathDelim Value="\"/>
       <SearchPaths>
-        <OtherUnitFiles Value="..\src"/>
+        <OtherUnitFiles Value="..\src\wrappers"/>
         <UnitOutputDirectory Value="lib\$(TargetCPU)-$(TargetOS)\"/>
       </SearchPaths>
     </CompilerOptions>
     <Files Count="33">
       <Item1>
-        <Filename Value="..\src\AnsiStringJson.pas"/>
+        <Filename Value="..\src\wrappers\AnsiStringJson.pas"/>
         <UnitName Value="AnsiStringJson"/>
       </Item1>
       <Item2>
-        <Filename Value="..\src\BooleanJson.pas"/>
+        <Filename Value="..\src\wrappers\BooleanJson.pas"/>
         <UnitName Value="BooleanJson"/>
       </Item2>
       <Item3>
-        <Filename Value="..\src\ByteJson.pas"/>
+        <Filename Value="..\src\wrappers\ByteJson.pas"/>
         <UnitName Value="ByteJson"/>
       </Item3>
       <Item4>
-        <Filename Value="..\src\CardinalJson.pas"/>
+        <Filename Value="..\src\wrappers\CardinalJson.pas"/>
         <UnitName Value="CardinalJson"/>
       </Item4>
       <Item5>
-        <Filename Value="..\src\CompJson.pas"/>
+        <Filename Value="..\src\wrappers\CompJson.pas"/>
         <UnitName Value="CompJson"/>
       </Item5>
       <Item6>
-        <Filename Value="..\src\CurrencyJson.pas"/>
+        <Filename Value="..\src\wrappers\CurrencyJson.pas"/>
         <UnitName Value="CurrencyJson"/>
       </Item6>
       <Item7>
-        <Filename Value="..\src\DoubleJson.pas"/>
+        <Filename Value="..\src\wrappers\DoubleJson.pas"/>
         <UnitName Value="DoubleJson"/>
       </Item7>
       <Item8>
-        <Filename Value="..\src\DWordJson.pas"/>
+        <Filename Value="..\src\wrappers\DWordJson.pas"/>
         <UnitName Value="DWordJson"/>
       </Item8>
       <Item9>
-        <Filename Value="..\src\ExtendedJson.pas"/>
+        <Filename Value="..\src\wrappers\ExtendedJson.pas"/>
         <UnitName Value="ExtendedJson"/>
       </Item9>
       <Item10>
-        <Filename Value="..\src\Int8Json.pas"/>
+        <Filename Value="..\src\wrappers\Int8Json.pas"/>
         <UnitName Value="Int8Json"/>
       </Item10>
       <Item11>
-        <Filename Value="..\src\Int16Json.pas"/>
+        <Filename Value="..\src\wrappers\Int16Json.pas"/>
         <UnitName Value="Int16Json"/>
       </Item11>
       <Item12>
-        <Filename Value="..\src\Int32Json.pas"/>
+        <Filename Value="..\src\wrappers\Int32Json.pas"/>
         <UnitName Value="Int32Json"/>
       </Item12>
       <Item13>
-        <Filename Value="..\src\Int64Json.pas"/>
+        <Filename Value="..\src\wrappers\Int64Json.pas"/>
         <UnitName Value="Int64Json"/>
       </Item13>
       <Item14>
-        <Filename Value="..\src\IntegerJson.pas"/>
+        <Filename Value="..\src\wrappers\IntegerJson.pas"/>
         <UnitName Value="IntegerJson"/>
       </Item14>
       <Item15>
-        <Filename Value="..\src\LongIntJson.pas"/>
+        <Filename Value="..\src\wrappers\LongIntJson.pas"/>
         <UnitName Value="LongIntJson"/>
       </Item15>
       <Item16>
-        <Filename Value="..\src\LongWordJson.pas"/>
+        <Filename Value="..\src\wrappers\LongWordJson.pas"/>
         <UnitName Value="LongWordJson"/>
       </Item16>
       <Item17>
-        <Filename Value="..\src\NativeIntJson.pas"/>
+        <Filename Value="..\src\wrappers\NativeIntJson.pas"/>
         <UnitName Value="NativeIntJson"/>
       </Item17>
       <Item18>
-        <Filename Value="..\src\NativeUIntJson.pas"/>
+        <Filename Value="..\src\wrappers\NativeUIntJson.pas"/>
         <UnitName Value="NativeUIntJson"/>
       </Item18>
       <Item19>
-        <Filename Value="..\src\QWordJson.pas"/>
+        <Filename Value="..\src\wrappers\QWordJson.pas"/>
         <UnitName Value="QWordJson"/>
       </Item19>
       <Item20>
-        <Filename Value="..\src\RawByteStringJson.pas"/>
+        <Filename Value="..\src\wrappers\RawByteStringJson.pas"/>
         <UnitName Value="RawByteStringJson"/>
       </Item20>
       <Item21>
-        <Filename Value="..\src\RealJson.pas"/>
+        <Filename Value="..\src\wrappers\RealJson.pas"/>
         <UnitName Value="RealJson"/>
       </Item21>
       <Item22>
-        <Filename Value="..\src\ShortIntJson.pas"/>
+        <Filename Value="..\src\wrappers\ShortIntJson.pas"/>
         <UnitName Value="ShortIntJson"/>
       </Item22>
       <Item23>
-        <Filename Value="..\src\SingleJson.pas"/>
+        <Filename Value="..\src\wrappers\SingleJson.pas"/>
         <UnitName Value="SingleJson"/>
       </Item23>
       <Item24>
-        <Filename Value="..\src\SmallIntJson.pas"/>
+        <Filename Value="..\src\wrappers\SmallIntJson.pas"/>
         <UnitName Value="SmallIntJson"/>
       </Item24>
       <Item25>
-        <Filename Value="..\src\StringJson.pas"/>
+        <Filename Value="..\src\wrappers\StringJson.pas"/>
         <UnitName Value="StringJson"/>
       </Item25>
       <Item26>
-        <Filename Value="..\src\UInt8Json.pas"/>
+        <Filename Value="..\src\wrappers\UInt8Json.pas"/>
         <UnitName Value="UInt8Json"/>
       </Item26>
       <Item27>
-        <Filename Value="..\src\UInt16Json.pas"/>
+        <Filename Value="..\src\wrappers\UInt16Json.pas"/>
         <UnitName Value="UInt16Json"/>
       </Item27>
       <Item28>
-        <Filename Value="..\src\UInt32Json.pas"/>
+        <Filename Value="..\src\wrappers\UInt32Json.pas"/>
         <UnitName Value="UInt32Json"/>
       </Item28>
       <Item29>
-        <Filename Value="..\src\UInt64Json.pas"/>
+        <Filename Value="..\src\wrappers\UInt64Json.pas"/>
         <UnitName Value="UInt64Json"/>
       </Item29>
       <Item30>
-        <Filename Value="..\src\UnicodeStringJson.pas"/>
+        <Filename Value="..\src\wrappers\UnicodeStringJson.pas"/>
         <UnitName Value="UnicodeStringJson"/>
       </Item30>
       <Item31>
-        <Filename Value="..\src\UTF8StringJson.pas"/>
+        <Filename Value="..\src\wrappers\UTF8StringJson.pas"/>
         <UnitName Value="UTF8StringJson"/>
       </Item31>
       <Item32>
-        <Filename Value="..\src\WideStringJson.pas"/>
+        <Filename Value="..\src\wrappers\WideStringJson.pas"/>
         <UnitName Value="WideStringJson"/>
       </Item32>
       <Item33>
-        <Filename Value="..\src\WordJson.pas"/>
+        <Filename Value="..\src\wrappers\WordJson.pas"/>
         <UnitName Value="WordJson"/>
       </Item33>
     </Files>

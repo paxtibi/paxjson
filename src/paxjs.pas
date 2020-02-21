@@ -722,7 +722,8 @@ function TClassListHelper.getFactory(aClassName: shortString): TFactory;
 var
   idx: int64;
 begin
-  idx := IndexOfClassName(aClassName);
+  Result := nil;
+  idx    := IndexOfClassName(aClassName);
   if idx > -1 then
   begin
     Result := (Items[idx].theFactory);
@@ -1504,14 +1505,18 @@ var
 begin
   jsonData := GetJSON(Source, True);
   try
-    factory := GetJSONFactory(clz.ClassName);
-    if (factory = nil) then
-    begin
-      raise EFactoryFailure.Create(clz.ClassName);
-    end;
-    Result := factory(clz);
-    if (Result = nil) then
-    begin
+    try
+      factory := GetJSONFactory(clz.ClassName);
+      if (factory = nil) then
+      begin
+        raise EFactoryFailure.Create(clz.ClassName);
+      end;
+      Result := factory(clz);
+      if (Result = nil) then
+      begin
+        raise EFactoryFailure.Create(clz.ClassName);
+      end;
+    except
       raise EFactoryFailure.Create(clz.ClassName);
     end;
 
@@ -1525,12 +1530,20 @@ begin
     end;
     handlers.Free;
     jsonData.Free;
+
   except
-    if Result <> nil then
+    on e: exception do
     begin
-      Result.FreeInstance;
+      LogException('TJSON3.parse', e);
+      if Result <> nil then
+      begin
+        try
+          FreeAndNil(Result);
+        except
+        end;
+      end;
+      raise;
     end;
-    raise;
   end;
 end;
 
