@@ -49,7 +49,7 @@ begin
     end
     else
     begin
-      res := TJSONIntegerNumber.Create(prop.value);
+      res := TJSONFloatNumber.Create(prop.value);
     end;
   end;
 end;     
