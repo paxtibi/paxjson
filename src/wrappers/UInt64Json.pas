@@ -21,10 +21,10 @@ var
   value : IUInt64;
 begin
   Result := False;
-  if (info^.PropType^.Kind = tkInterface) and  (info^.PropType^.Name = 'IDouble') and (node <> nil) then
+  if (info^.PropType^.Kind = tkInterface) and  (info^.PropType^.Name = 'IUInt64') and (node <> nil) then
   begin
     try
-      value := GetInt64Prop(AObject, Info);
+      value := GetOrdProp(AObject, Info);
       SetInterfaceProp(AObject, Info^.Name, value);
     except
       on  e: Exception do
@@ -49,7 +49,7 @@ begin
     end
     else
     begin
-      res := TJSONInt64Number.Create(prop.value);
+      res := TJSONIntegerNumber.Create(prop.value);
     end;
   end;
 end;     

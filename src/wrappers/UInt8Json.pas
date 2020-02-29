@@ -1,15 +1,11 @@
 unit UInt8Json;
-
 interface
-
 uses
-  Classes, SysUtils;
-
+   Classes, SysUtils;
+                             
 implementation
-
 uses
   typInfo, fpjson, paxjs, paxTypes;
-
 type
   { TJSONUInt8WrapperTypeHandler }
 
@@ -18,18 +14,18 @@ type
     function stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean; override;
   end;
 
-{ TJSONUInt8WrapperTypeHandler }
+  { TJSONUInt8WrapperTypeHandler }
 
 function TJSONUInt8WrapperTypeHandler.parse(const AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean;
 var
-  Value: IUInt8;
+  value : IUInt8;
 begin
   Result := False;
-  if (info^.PropType^.Kind = tkInterface) and (info^.PropType^.Name = 'IDouble') and (node <> nil) then
+  if (info^.PropType^.Kind = tkInterface) and  (info^.PropType^.Name = 'IUInt8') and (node <> nil) then
   begin
     try
-      Value := GetOrdProp(AObject, Info);
-      SetInterfaceProp(AObject, Info^.Name, Value);
+      value := GetOrdProp(AObject, Info);
+      SetInterfaceProp(AObject, Info^.Name, value);
     except
       on  e: Exception do
         raise Exception.CreateFmt('on parse %s, error %s', [Info^.Name, e.Message]);
@@ -40,23 +36,23 @@ end;
 
 function TJSONUInt8WrapperTypeHandler.stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean;
 var
-  prop: IUInt8;
+  prop : IUInt8;
 begin
   Result := False;
   if (info^.PropType^.Kind = tkInterface) and (info^.PropType^.Name = 'IUInt8') then
   begin
     Result := True;
-    prop   := GetInterfaceProp(AObject, Info) as IUInt8;
+    prop := GetInterfaceProp(AObject,Info) as IUInt8;
     if prop = nil then
     begin
       res := nil;
     end
     else
     begin
-      res := TJSONInt64Number.Create(prop.Value);
+      res := TJSONIntegerNumber.Create(prop.value);
     end;
   end;
-end;
+end;     
 
 
 initialization

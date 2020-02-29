@@ -21,7 +21,7 @@ var
   value : ILongWord;
 begin
   Result := False;
-  if (info^.PropType^.Kind = tkInterface) and  (info^.PropType^.Name = 'IDouble') and (node <> nil) then
+  if (info^.PropType^.Kind = tkInterface) and  (info^.PropType^.Name = 'ILongWord') and (node <> nil) then
   begin
     try
       value := GetOrdProp(AObject, Info);

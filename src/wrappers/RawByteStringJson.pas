@@ -21,7 +21,7 @@ var
   value : IRawByteString;
 begin
   Result := False;
-  if (info^.PropType^.Kind = tkInterface) and  (info^.PropType^.Name = 'IDouble') and (node <> nil) then
+  if (info^.PropType^.Kind = tkInterface) and  (info^.PropType^.Name = 'IRawByteString') and (node <> nil) then
   begin
     try
       value := GetStrProp(AObject, Info);

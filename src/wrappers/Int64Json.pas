@@ -21,7 +21,7 @@ var
   value : IInt64;
 begin
   Result := False;
-  if (info^.PropType^.Kind = tkInterface) and  (info^.PropType^.Name = 'IDouble') and (node <> nil) then
+  if (info^.PropType^.Kind = tkInterface) and  (info^.PropType^.Name = 'IInt64') and (node <> nil) then
   begin
     try
       value := GetOrdProp(AObject, Info);
@@ -49,7 +49,7 @@ begin
     end
     else
     begin
-      res := TJSONIntegerNumber.Create(prop.value);
+      res := TJSONInt64Number.Create(prop.value);
     end;
   end;
 end;     

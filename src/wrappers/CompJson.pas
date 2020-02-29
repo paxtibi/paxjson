@@ -21,10 +21,10 @@ var
   value : IComp;
 begin
   Result := False;
-  if (info^.PropType^.Kind = tkInterface) and  (info^.PropType^.Name = 'IDouble') and (node <> nil) then
+  if (info^.PropType^.Kind = tkInterface) and  (info^.PropType^.Name = 'IComp') and (node <> nil) then
   begin
     try
-      value := GetOrdProp(AObject, Info);
+      value :=Comp(GetFloatProp(AObject, Info));
       SetInterfaceProp(AObject, Info^.Name, value);
     except
       on  e: Exception do

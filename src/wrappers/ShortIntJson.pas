@@ -21,7 +21,7 @@ var
   value : IShortInt;
 begin
   Result := False;
-  if (info^.PropType^.Kind = tkInterface) and  (info^.PropType^.Name = 'IDouble') and (node <> nil) then
+  if (info^.PropType^.Kind = tkInterface) and  (info^.PropType^.Name = 'IShortInt') and (node <> nil) then
   begin
     try
       value := GetOrdProp(AObject, Info);
@@ -49,7 +49,7 @@ begin
     end
     else
     begin
-      res := TJSONIntegerNumber.Create(prop.value);
+      res := TJSONFloatNumber.Create(prop.value);
     end;
   end;
 end;     

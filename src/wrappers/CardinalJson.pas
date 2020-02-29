@@ -21,10 +21,10 @@ var
   value : ICardinal;
 begin
   Result := False;
-  if (info^.PropType^.Kind = tkInterface) and  (info^.PropType^.Name = 'IDouble') and (node <> nil) then
+  if (info^.PropType^.Kind = tkInterface) and  (info^.PropType^.Name = 'ICardinal') and (node <> nil) then
   begin
     try
-      value := GetOrdProp(AObject, Info);
+      value := GetInt64Prop(AObject, Info);
       SetInterfaceProp(AObject, Info^.Name, value);
     except
       on  e: Exception do
@@ -49,7 +49,7 @@ begin
     end
     else
     begin
-      res := TJSONIntegerNumber.Create(prop.value);
+      res := TJSONInt64Number.Create(prop.value);
     end;
   end;
 end;     

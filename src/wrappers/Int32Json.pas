@@ -21,7 +21,7 @@ var
   value : IInt32;
 begin
   Result := False;
-  if (info^.PropType^.Kind = tkInterface) and  (info^.PropType^.Name = 'IDouble') and (node <> nil) then
+  if (info^.PropType^.Kind = tkInterface) and  (info^.PropType^.Name = 'IInt32') and (node <> nil) then
   begin
     try
       value := GetOrdProp(AObject, Info);

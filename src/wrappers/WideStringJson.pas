@@ -21,7 +21,7 @@ var
   value : IWideString;
 begin
   Result := False;
-  if (info^.PropType^.Kind = tkInterface) and  (info^.PropType^.Name = 'IDouble') and (node <> nil) then
+  if (info^.PropType^.Kind = tkInterface) and  (info^.PropType^.Name = 'IWideString') and (node <> nil) then
   begin
     try
       value := GetWideStrProp(AObject, Info);
