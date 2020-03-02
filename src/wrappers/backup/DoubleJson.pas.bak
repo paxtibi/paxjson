@@ -28,7 +28,7 @@ begin
   if (info^.PropType^.Kind = tkInterface) and (info^.PropType^.Name = 'IDouble') and (node <> nil) then
   begin
     try
-      Value := node.AsFloat;
+      Value := GetFloatProp(AObject, Info);
       SetInterfaceProp(AObject, Info^.Name, Value);
     except
       on  e: Exception do

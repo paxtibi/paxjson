@@ -24,7 +24,7 @@ begin
   if (info^.PropType^.Kind = tkInterface) and  (info^.PropType^.Name = 'IUInt32') and (node <> nil) then
   begin
     try
-      value := GetOrdProp(AObject, Info);
+      value := node.AsInteger;
       SetInterfaceProp(AObject, Info^.Name, value);
     except
       on  e: Exception do
