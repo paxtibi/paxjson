@@ -185,6 +185,7 @@ var
 begin
   getHandlers(tkClass, handlers);
   factory := GetJSONFactory(TCastContainedType);
+  LogDebug(Format('parsing %s',[AObject.ClassName]));
 
   for idx := 0 to arrayNode.Count - 1 do
   begin
@@ -194,6 +195,7 @@ begin
     try
       for h in handlers do
       begin
+        LogDebug(Format('parse with %s',[h.ClassName]));
         if h.parse(item, nil, childNode) then
         begin
           aObject.Add(
@@ -252,10 +254,25 @@ function TGenericListTypeHandle.parse(const AObject: TObject; Info: PPropInfo;
 var
   aList: aType;
   aClassName : String;
+  checkSummary : String = '';
 begin
+  LogDebug(Format('Enter %s.Parse',[self.ClassName]));
   result := False;
   aClassName:= AObject.ClassName;
-  LogDebug(Format('parse check %s :: %s',[AObject.ClassName, TCastContainerType.ClassName]));
+  LogDebug(Format('Parse check %s :: %s',[AObject.ClassName, TCastContainerType.ClassName]));
+  if info = nil then
+    checkSummary+= 'RTTI is nil'
+  else
+  begin
+    checkSummary+= 'RTTI is nil';
+    checkSummary+= Format('Propery Kind %s ',[GetEnumName(Info^.PropType, Ord(Info^.PropType^.Kind))]);
+  end;
+  if compareText(aClassName,TCastContainerType.className)=0 then
+    checkSummary+= ' Class name ok'
+  else
+    checkSummary+= ' Class name ko';
+
+  LogDebug(Format('checkSummary : %s',[checkSummary]));
 
   if (Info = nil) and  (compareText(aClassName,TCastContainerType.className)=0) then
   begin
@@ -271,6 +288,7 @@ begin
       result := True;
     end;
   end;
+  LogDebug(Format('Leave %s.Parse',[self.ClassName]));
 end;
 
 function TGenericListTypeHandle.stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean;
