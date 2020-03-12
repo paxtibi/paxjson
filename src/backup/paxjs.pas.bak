@@ -643,7 +643,7 @@ begin
           target := TStringList.Create;
         end;
 
-        processNodeData(target as TStringList, node as TJSONArray);
+        processNodeData(target, node as TJSONArray);
         SetObjectProp(AObject, Info, target);
         Result := True;
       end;
