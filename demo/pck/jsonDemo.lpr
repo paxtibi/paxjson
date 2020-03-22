@@ -8,7 +8,6 @@ uses {$IFDEF UNIX} {$IFDEF UseCThreads}
   Classes,
   SysUtils,
   omtest,
-  paxjs,
   CustApp,
   demoApp;
 
@@ -23,7 +22,7 @@ begin
   writeln('FPC_RELEASE     ', FPC_RELEASE);
   writeln('FPC_PATCH       ', FPC_PATCH);
   Application := TJSONDemo.Create(nil);
-  Application.Title := 'JSON Demo';
+  Application.Title:='JSON Demo';
   Application.Run;
   Application.Free;
 end.

@@ -1,5 +1,6 @@
 program jsonDemo;
 
+           {$macro on}
 {$mode objfpc}{$H+}
 
 uses {$IFDEF UNIX} {$IFDEF UseCThreads}
@@ -22,7 +23,7 @@ begin
   writeln('FPC_RELEASE     ', FPC_RELEASE);
   writeln('FPC_PATCH       ', FPC_PATCH);
   Application := TJSONDemo.Create(nil);
-  Application.Title := 'JSON Demo';
+  Application.Title:='JSON Demo';
   Application.Run;
   Application.Free;
 end.

@@ -10,13 +10,13 @@ uses
 type
   { TGenericListTypeHandle }
 
-  generic TGenericListTypeHandle <aType: TFPSList; aItemType: TObject> = class(TJsonTypeHandler)
+  generic TGenericListTypeHandle <aItemType: TObject> = class(TJsonTypeHandler)
   private
     type
-     TCastContainerType = aType;
+     TCastContainerType = specialize TFPGList<aItemType>;
      TCastContainedType = aItemType;
   protected
-    procedure parseType(aObject: aType; arrayNode: TJSONArray);
+    procedure parseType(aObject: TCastContainerType; arrayNode: TJSONArray);
     procedure stringifyType(AObject: TCastContainerType; out Res: TJSONData);
   public
     constructor Create;
@@ -26,7 +26,9 @@ type
   end;
 
   { TGenericInterfaceListTypeHandle }
+
   TInterfaceFactory =class
+  protected
     function createInstance : IInterface; virtual; abstract;
     function getInstance(item : IInterface) : TObject;virtual; abstract;
   end;
@@ -51,74 +53,7 @@ type
 implementation
 
 { TGenericInterfaceListTypeHandle }
-{$if (FPC_VERSION=3) and (FPC_RELEASE >= 3)}
-// https://forum.lazarus.freepascal.org/index.php?topic=48984.msg353943#msg353943
-procedure TGenericListTypeHandle.parseType(aObject: TCastContainerType; arrayNode: TJSONArray);
-var
- idx: integer;
- item: TCastContainedType;
- handlers: THandlerList;
- h: TJsonTypeHandler;
- factory: TFactory;
- childNode: TJSONData;
-begin
- getHandlers(tkClass, handlers);
- factory := GetJSONFactory(TCastContainedType);
- LogDebug(Format('parsing %s',[AObject.ClassName]));
 
- for idx := 0 to arrayNode.Count - 1 do
- begin
-   childNode := arrayNode[idx];
-   if childNode.IsNull then continue;
-   item := factory(TCastContainedType) as TCastContainedType;
-   try
-     for h in handlers do
-     begin
-       LogDebug(Format('parse with %s',[h.ClassName]));
-       if h.parse(item, nil, childNode) then
-       begin
-         aObject.Add(
-         {$ifdef Darwin}@item{$else}item{$endif}
-         );
-         break;
-       end;
-     end;
-   except
-     on e: Exception do
-       raise Exception.CreateFmt('on parse [%d], error %s', [idx, e.Message]);
-   end;
- end;
- handlers.Free;
-end;
-
-procedure TGenericListTypeHandle.stringifyType(AObject: TCastContainerType; out  Res: TJSONData);
-var
- idx: integer;
- item: TObject;
- childNode: TJSONData;
- handlers: THandlerList;
- h: TJSONTypeHandler;
-begin
- if AObject = nil then
- begin
-   res := CreateJSON;
- end else
- begin
-   Res := TJSONArray.Create;
-   for idx := 0 to TFPSList(aObject).count - 1 do
-   begin
-     getHandlers(tkClass, handlers);
-     item := TCastContainedType(aObject[idx]);
-     for h in handlers do
-     begin
-       if h.stringify(item, nil, childNode) then break;
-     end;
-     if childNode <> nil then TJSONArray(res).Add(childNode);
-     handlers.Free;
-   end;
- end;
-end;
-{$ELSE}
 procedure TGenericInterfaceListTypeHandle.parseType(aObject: aType;  arrayNode: TJSONArray);
 var
   idx: integer;
@@ -141,7 +76,12 @@ begin
         obj:=  ffactory.getInstance(item);
         if h.parse(obj, nil, childNode) then
         begin
-          aObject.Add({$ifdef darwin} @item{$else}item{$endif} );
+          // https://forum.lazarus.freepascal.org/index.php?topic=48984.msg353943#msg353943
+          {$if (FPC_VERSION=3) and (FPC_RELEASE >= 3)}
+            aObject.Add(Pointer(item));
+          {$ELSE}
+             aObject.Add(item);
+          {$ENDIF}
           break;
         end;
       except
@@ -182,8 +122,6 @@ begin
     handlers.Free;
   end;
 end;
-
-{$ENDIF}
 
 constructor TGenericInterfaceListTypeHandle.Create;
 begin
@@ -242,7 +180,7 @@ begin
 end;
 
 { TGenericListTypeHandle }
-procedure TGenericListTypeHandle.parseType(aObject: aType; arrayNode: TJSONArray);
+procedure TGenericListTypeHandle.parseType(aObject: TCastContainerType; arrayNode: TJSONArray);
 var
   idx: integer;
   item: TCastContainedType;
@@ -266,9 +204,7 @@ begin
         LogDebug(Format('parse with %s',[h.ClassName]));
         if h.parse(item, nil, childNode) then
         begin
-          aObject.Add(
-          {$ifdef Darwin}@item{$else}item{$endif}
-          );
+           aObject.Add(item);
           break;
         end;
       end;
@@ -317,10 +253,10 @@ begin
   inherited Destroy;
 end;
 
-function TGenericListTypeHandle.parse(const AObject: TObject; Info: PPropInfo;
-  const node: TJSONData): boolean;
+function TGenericListTypeHandle.parse(const AObject: TObject; Info: PPropInfo; const node: TJSONData): boolean;
 var
-  aList: aType;
+  aList: TCastContainerType;
+  aObjectProperty : TObject;
   aClassName : String;
   checkSummary : String = '';
 begin
@@ -351,7 +287,8 @@ begin
   begin
     if (Info <> nil) and (compareText(aClassName,TCastContainerType.className)=0) and (Info^.PropType^.Kind in [tkClass, tkObject]) then
     begin
-      aList := TCastContainerType(GetObjectProp(AObject, Info));
+      aObjectProperty:=GetObjectProp(AObject, Info);
+      aList := TCastContainerType(aObjectProperty);
       parseType(aList, node as TJSONArray);
       result := True;
     end;
@@ -361,7 +298,7 @@ end;
 
 function TGenericListTypeHandle.stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean;
 var
-  aList: aType;
+  aList: TCastContainerType;
 begin
   result := False;
   LogDebug( Format('%s.stringify check %s :: %s',[self.classname, AObject.ClassName,TCastContainerType.ClassName]));

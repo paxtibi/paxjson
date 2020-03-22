@@ -49,7 +49,7 @@ const
 
 
 type
-  TMinimalObjectListTypeHandle = specialize TGenericListTypeHandle<TMinimalObject>;
+  TMinimalObjectListTypeHandle = specialize TGenericListTypeHandle<TMinimalObjectList, TMinimalObject>;
 
 function ACollectionFactory(aClass: TClass): TObject;
 begin
