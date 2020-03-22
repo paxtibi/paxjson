@@ -1,6 +1,7 @@
 unit paxjs;
 
 {$mode objfpc}{$H+}
+{$Codepage  UTF8}
 {$D+}
 
 interface
@@ -624,6 +625,20 @@ function TJSONStringListTypeHandle.parse(const AObject: TObject; Info: PPropInfo
       target.Add(dataArray[idx].AsString);
   end;
 
+  procedure processNodeData(target: TStringList; dataString: TJSONString);
+  var
+    Lines: TStringArray;
+    line: string;
+  begin
+    Lines := string(dataString.AsString).Split(LineEnding);
+
+    for line in Lines do
+    begin
+      if line <> '' then
+        target.Add(line);
+    end;
+  end;
+
 var
   target: TObject;
 begin
@@ -642,8 +657,17 @@ begin
         begin
           target := TStringList.Create;
         end;
-
-        processNodeData(target as TStringList, node as TJSONArray);
+        if (node is TJSONArray) then
+        begin
+          processNodeData(target as TStringList, node as TJSONArray);
+        end
+        else
+        begin
+          if (node is TJSONString) then
+          begin
+            processNodeData(target as TStringList, node as TJSONString);
+          end;
+        end;
         SetObjectProp(AObject, Info, target);
         Result := True;
       end;
@@ -662,8 +686,19 @@ begin
 end;
 
 function TJSONStringListTypeHandle.stringify(AObject: TObject; Info: PPropInfo; out Res: TJSONData): boolean;
+
+  procedure produceArrayOfString(out res: TJSONData; target: TStringList);
+  var
+    line: string;
+  begin
+    res := TJSONArray.Create();
+    for line in target do
+      TJSONArray(res).Add(TJSONString.Create(line));
+  end;
+
 var
   target: TObject;
+
 begin
   Result := False;
   if Info <> nil then
@@ -671,7 +706,7 @@ begin
     if (Info^.PropType^.Kind = tkClass) and (UpperCase(Info^.PropType^.Name) = UpperCase('TStringList')) then
     begin
       target := GetObjectProp(AObject, Info);
-      res := TJSONString.Create(TStringList(target).Text);
+      produceArrayOfString(res, TStringList(target));
       Result := True;
     end;
   end
@@ -679,7 +714,7 @@ begin
   begin
     if AObject is TStringList then
     begin
-      res := TJSONString.Create(TStringList(AObject).Text);
+      produceArrayOfString(res, TStringList(AObject));
       Result := True;
     end;
   end;

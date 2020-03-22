@@ -1,6 +1,5 @@
 program jsonDemo;
 
-           {$macro on}
 {$mode objfpc}{$H+}
 
 uses {$IFDEF UNIX} {$IFDEF UseCThreads}
