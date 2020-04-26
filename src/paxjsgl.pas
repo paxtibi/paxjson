@@ -100,7 +100,7 @@ var
   handlers: THandlerList;
   h: TJSONTypeHandler;
 begin
-  if AObject = nil then
+  if @AObject = nil then
   begin
     res := CreateJSON;
   end

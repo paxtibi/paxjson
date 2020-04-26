@@ -9,7 +9,7 @@
       <PathDelim Value="\"/>
       <SearchPaths>
         <OtherUnitFiles Value="..\src"/>
-        <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)"/>
+        <UnitOutputDirectory Value="..\lib\$(TargetCPU)-$(TargetOS)\fpc-$(FPC_FULLVERSION)"/>
       </SearchPaths>
       <CodeGeneration>
         <VerifyObjMethodCallValidity Value="True"/>
