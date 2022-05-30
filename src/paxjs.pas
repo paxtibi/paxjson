@@ -23,10 +23,10 @@ type
 
   TJSONLoggingEvent = record
     Category: TJSONLoggingCategory;
-    Protocol: RawByteString;
-    Message: RawByteString;
+    Protocol: rawbytestring;
+    Message: rawbytestring;
     ErrorCode: integer;
-    Error: RawByteString;
+    Error: rawbytestring;
     Timestamp: TDateTime;
   end;
 
@@ -166,6 +166,36 @@ type
 
   TFactory = function(clz: TClass): TObject;
   THandlerList = specialize TFPGObjectList<TJsonTypeHandler>;
+
+type
+  { TJSONObjectHelper }
+
+  TJSONObjectHelper = class helper for TJSONObject
+    procedure setValue(Name: string; Value: TJSONObject); overload;
+    procedure setValue(Name: string; Value: TJSONArray); overload;
+    procedure setValue(Name: string; Value: boolean); overload;
+    procedure setValue(Name: string; Value: string); overload;
+    procedure setValue(Name: string; Value: integer); overload;
+    procedure setValue(Name: string; Value: double); overload;
+    procedure setValue(Name: string; Value: single); overload;
+    procedure setValue(Name: string; Value: int64); overload;
+    procedure setValue(Name: string; Value: byte); overload;
+
+    procedure getValue(Name: string; out Value: TJSONObject); overload;
+    procedure getValue(Name: string; out Value: TJSONData); overload;
+    procedure getValue(Name: string; out Value: TJSONArray); overload;
+    procedure getValue(Name: string; out Value: boolean); overload;
+    procedure getValue(Name: string; out Value: string); overload;
+    procedure getValue(Name: string; out Value: integer); overload;
+    procedure getValue(Name: string; out Value: double); overload;
+    procedure getValue(Name: string; out Value: single); overload;
+    procedure getValue(Name: string; out Value: int64); overload;
+    procedure getValue(Name: string; out Value: byte); overload;
+
+    function hasProperty(Name: string): boolean;
+
+  end;
+
 
 procedure RegisterJsonTypeHandler(aTypeKind: TTypeKind; aHandler: TJsonTypeHandler);
 procedure RegisterJSONClass(aClass: TClass; aFactory: TFactory = nil);
@@ -361,13 +391,6 @@ type
 
   TJSONTypeRegistry = specialize TFPGObjectList<TJSONTypeHandlerHolder>;
 
-
-  { TJSONObjectHelper }
-
-  TJSONObjectHelper = class helper for TJSONObject
-    function hasProperty(Name: string): boolean;
-  end;
-
   { TClassContainer }
 
   TClassContainer = class
@@ -389,9 +412,9 @@ type
 
   TClassListHelper = class helper for TClassList
     function indexOfClass(aClass: TClass): int64;
-    function indexOfClassName(aClassName: shortString): int64;
-    function getClass(aClassName: shortString): TClass;
-    function getFactory(aClassName: shortString): TFactory;
+    function indexOfClassName(aClassName: shortstring): int64;
+    function getClass(aClassName: shortstring): TClass;
+    function getFactory(aClassName: shortstring): TFactory;
   end;
 
 var
@@ -605,12 +628,6 @@ begin
     res := TJSONBoolean.Create(GetOrdProp(AObject, Info^.Name) <> 0);
     Result := True;
   end;
-
-end;
-
-function TJSONObjectHelper.hasProperty(Name: string): boolean;
-begin
-  Result := IndexOfName(Name) >= 0;
 end;
 
 { TJSONStringListTypeHandle }
@@ -738,7 +755,7 @@ begin
   end;
 end;
 
-function TClassListHelper.indexOfClassName(aClassName: shortString): int64;
+function TClassListHelper.indexOfClassName(aClassName: shortstring): int64;
 var
   cc: TClassContainer;
 begin
@@ -752,7 +769,7 @@ begin
   end;
 end;
 
-function TClassListHelper.getClass(aClassName: shortString): TClass;
+function TClassListHelper.getClass(aClassName: shortstring): TClass;
 var
   idx: int64;
 begin
@@ -764,7 +781,7 @@ begin
   end;
 end;
 
-function TClassListHelper.getFactory(aClassName: shortString): TFactory;
+function TClassListHelper.getFactory(aClassName: shortstring): TFactory;
 var
   idx: int64;
 begin
@@ -1658,6 +1675,227 @@ begin
         end;
     end;
   end;
+end;
+
+
+{ TJSONObjectHelper }
+
+procedure TJSONObjectHelper.setValue(Name: string; Value: TJSONObject);
+var
+  Data: TJSONData;
+begin
+  try
+    Data := find(Name);
+    if assigned(Data) then
+      (self as TJSONObject).Objects[Name] := Value
+    else
+      Add(Name, Value);
+  except
+    Add(Name, Value);
+  end;
+end;
+
+procedure TJSONObjectHelper.setValue(Name: string; Value: TJSONArray);
+var
+  Data: TJSONData;
+begin
+  try
+    Data := find(Name);
+    if assigned(Data) then
+      (self as TJSONObject).Arrays[Name] := Value
+    else
+      Add(Name, Value);
+  except
+    Add(Name, Value);
+  end;
+end;
+
+procedure TJSONObjectHelper.setValue(Name: string; Value: boolean);
+var
+  Data: TJSONData;
+begin
+  try
+    Data := find(Name);
+    if Assigned(Data) then
+      find(Name).AsBoolean := Value
+    else
+      Add(Name, Value);
+  except
+    Add(Name, Value);
+  end;
+end;
+
+procedure TJSONObjectHelper.setValue(Name: string; Value: string);
+var
+  Data: TJSONData;
+begin
+  try
+    Data := find(Name);
+    if Assigned(Data) then
+      find(Name).AsString := Value
+    else
+      Add(Name, Value);
+  except
+    Add(Name, Value);
+  end;
+end;
+
+procedure TJSONObjectHelper.setValue(Name: string; Value: integer);
+var
+  Data: TJSONData;
+begin
+  try
+    Data := find(Name);
+    if Assigned(Data) then
+      find(Name).AsInteger := Value
+    else
+      Add(Name, Value);
+  except
+    Add(Name, Value);
+  end;
+end;
+
+procedure TJSONObjectHelper.setValue(Name: string; Value: double);
+var
+  Data: TJSONData;
+begin
+  try
+    Data := find(Name);
+    if Assigned(Data) then
+      find(Name).AsFloat := Value
+    else
+      Add(Name, Value);
+  except
+    Add(Name, Value);
+  end;
+end;
+
+procedure TJSONObjectHelper.setValue(Name: string; Value: single);
+var
+  Data: TJSONData;
+begin
+  try
+    Data := find(Name);
+    if Assigned(Data) then
+      find(Name).AsFloat := Value
+    else
+      Add(Name, Value);
+  except
+    Add(Name, Value);
+  end;
+end;
+
+procedure TJSONObjectHelper.setValue(Name: string; Value: int64);
+var
+  Data: TJSONData;
+begin
+  try
+    Data := find(Name);
+    if Assigned(Data) then
+      find(Name).AsInt64 := Value
+    else
+      Add(Name, Value);
+  except
+    Add(Name, Value);
+  end;
+end;
+
+procedure TJSONObjectHelper.setValue(Name: string; Value: byte);
+begin
+  try
+    Value := (self as TJSONObject).Int64s[Name];
+  except
+    Value := 0;
+  end;
+end;
+
+procedure TJSONObjectHelper.getValue(Name: string; out Value: TJSONObject);
+begin
+  try
+    Value := (self as TJSONObject).Objects[Name];
+  except
+    Value := nil;
+  end;
+end;
+
+procedure TJSONObjectHelper.getValue(Name: string; out Value: TJSONData);
+begin
+  try
+    Value := (self as TJSONObject).Elements[Name];
+  except
+    Value := nil;
+  end;
+end;
+
+procedure TJSONObjectHelper.getValue(Name: string; out Value: TJSONArray);
+begin
+  try
+    Value := (self as TJSONObject).Arrays[Name];
+  except
+    Value := nil;
+  end;
+end;
+
+procedure TJSONObjectHelper.getValue(Name: string; out Value: boolean);
+begin
+  try
+    Value := find(Name).AsBoolean;
+  except
+  end;
+end;
+
+procedure TJSONObjectHelper.getValue(Name: string; out Value: string);
+begin
+  try
+    Value := find(Name).AsString;
+  except
+  end;
+end;
+
+procedure TJSONObjectHelper.getValue(Name: string; out Value: integer);
+begin
+  try
+    Value := find(Name).AsInteger;
+  except
+  end;
+
+end;
+
+procedure TJSONObjectHelper.getValue(Name: string; out Value: double);
+begin
+  try
+    Value := find(Name).AsFloat;
+  except
+  end;
+end;
+
+procedure TJSONObjectHelper.getValue(Name: string; out Value: single);
+begin
+  try
+    Value := find(Name).AsFloat;
+  except
+  end;
+end;
+
+procedure TJSONObjectHelper.getValue(Name: string; out Value: int64);
+begin
+  try
+    Value := find(Name).AsInt64;
+  except
+  end;
+end;
+
+procedure TJSONObjectHelper.getValue(Name: string; out Value: byte);
+begin
+  try
+    Value := find(Name).AsInt64;
+  except
+  end;
+end;
+
+function TJSONObjectHelper.hasProperty(Name: string): boolean;
+begin
+  Result := IndexOfName(Name) >= 0;
 end;
 
 
